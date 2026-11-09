@@ -72,6 +72,7 @@ def ask():
     try:
         # Use Taha's Flask + Google Gen AI flow with a bounded response.
         with genai.Client(api_key=api_key, http_options=types.HttpOptions(
+            api_version="v1beta",
             timeout=8000,
             retry_options=types.HttpRetryOptions(attempts=1),
         )) as client:
@@ -83,8 +84,7 @@ def ask():
                 ),
                 config=types.GenerateContentConfig(
                     system_instruction=SYSTEM_PROMPT,
-                    max_output_tokens=256,
-                    thinking_config=types.ThinkingConfig(thinking_level="MINIMAL"),
+                    max_output_tokens=1024,
                     response_mime_type="application/json",
                     response_schema={
                         "type": "OBJECT",
@@ -95,7 +95,24 @@ def ask():
             )
         route = json.loads(reply.text or "{}").get("route")
     except Exception as error:
-        app.logger.warning("Gemini classification failed (%s)", type(error).__name__)
+        # Log only a fixed category and HTTP code. Upstream details may contain secrets.
+        message = str(error).lower()
+        reason = next(
+            (label for label, hint in (
+                ("key", "api key"),
+                ("billing", "billing"),
+                ("region", "location"),
+                ("quota", "quota"),
+                ("model", "model"),
+                ("schema", "schema"),
+                ("payload", "payload"),
+            ) if hint in message),
+            "other",
+        )
+        app.logger.warning(
+            "Gemini classification failed (%s, code=%s, reason=%s)",
+            type(error).__name__, getattr(error, "code", None), reason,
+        )
         return jsonify(error="unavailable"), 502
 
     if not isinstance(route, str) or route not in GUIDES:
