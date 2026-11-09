@@ -52,6 +52,7 @@ textarea::placeholder { color: #526b5b; }
 .mic[aria-pressed="true"] { background: var(--green); color: white; }
 .hint { margin: 7px 0 13px; min-height: 2em; font-size: 12px; color: var(--muted); }
 .primary { display: flex; width: 100%; justify-content: space-between; align-items: center; background: var(--green); color: white; padding: 11px 14px; border: 0; border-radius: 9px; font-weight: 680; }
+.primary:disabled { opacity: .58; cursor: default; }
 .primary:hover { background: var(--forest); }
 .quick { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 12px; }
 .quick > span { font-size: 12px; font-weight: 700; color: var(--muted); }
@@ -106,6 +107,9 @@ textarea::placeholder { color: #526b5b; }
 .read-aloud:hover { background: var(--soft); }
 .read-status { display: block; font-size: 12px; color: var(--muted); }
 .read-status:empty { display: none; }
+.question-error { color: #9a3028; font-size: .88rem; font-weight: 650; margin: 7px 0; }
+.question-error:empty { display: none; }
+.field:has(#question[aria-invalid="true"]) { border-color: #b34f46; }
 .more-services { margin-top: 13px; border-top: 1px solid var(--line); padding-top: 10px; }
 .more-services summary { width: fit-content; cursor: pointer; font-size: 13px; font-weight: 700; color: var(--green); }
 .more-services summary:focus-visible { outline: 3px solid #467a5a; outline-offset: 3px; }
@@ -166,13 +170,15 @@ textarea::placeholder { color: #526b5b; }
       <form id="ask-form">
         <label for="question">Type or speak your question</label>
         <div class="field">
-          <textarea id="question" rows="2" maxlength="200" dir="auto" placeholder="Mujhe naya CNIC banwana hai…"></textarea>
+          <textarea id="question" rows="2" dir="auto" enterkeyhint="go" aria-describedby="question-error voice-status" placeholder="Mujhe naya CNIC banwana hai…"></textarea>
           <button id="mic" type="button" class="mic" aria-label="Speak in Urdu" aria-pressed="false" title="Speak in Urdu">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11v1a7 7 0 0 0 14 0v-1M12 19v3m-3 0h6"/></svg>
           </button>
         </div>
+        <p class="question-error" id="question-error" role="alert" dir="auto"></p>
         <p class="hint" id="voice-status" role="status">Urdu voice uses your browser’s speech service. Please leave out ID numbers and personal details.</p>
-        <button class="primary" type="submit">Get my checklist <span aria-hidden="true">→</span></button>
+        <button class="primary" type="submit" disabled>Get my checklist <span aria-hidden="true">→</span></button>
+        <p class="hint" id="script-help">If the button is disabled, open the demo in Chrome or use the published GitHub Pages link.</p>
       </form>
       <div class="quick">
         <span>Or choose a service</span>
@@ -661,7 +667,13 @@ const labels = {
     pick: ["Which service should we start with?", "Choose one service to get its checklist."],
     domicileLocation: ["Is your domicile for Multan district?", "Choose Multan for the local checklist. For a different district, confirm its requirements with your district office."],
     outside: ["Check the guide for your location", "The domicile checklist covers Multan district. The business checklist covers sole proprietors in Punjab."],
-    unsupported: ["Choose a service for your checklist", "This prototype covers the services below. For other cases, check the relevant department’s official guidance."],
+    unsupported: ["We couldn’t match that question", "Try mentioning a service, such as CNIC renewal or B-Form, or select a checklist below."],
+    inputErrors: {
+      empty: "Type a question, for example: Mujhe B-Form banwana hai.",
+      noWords: "Enter a question in Urdu, Roman Urdu or English.",
+      tooLong: "Keep your question to 200 characters or fewer.",
+      privateId: "Remove your CNIC or other identity number before asking.",
+    },
     options: { first: "First CNIC", renew: "CNIC renewal", duplicate: "Lost or damaged CNIC", modify: "Update CNIC", domicile: "Domicile · Multan", passport: "Passport renewal", business: "Small business · Punjab" },
     cardLabel: "CNIC type", cardOptions: ["Standard CNIC", "Smart NIC"],
     passportLabel: "36-page e-passport validity", passportOptions: ["5 years", "10 years"],
@@ -677,7 +689,13 @@ const labels = {
     pick: ["آپ کو کون سی سروس چاہیے؟", "چیک لسٹ کے لیے ایک سروس منتخب کریں۔"],
     domicileLocation: ["کیا آپ کو ضلع ملتان کا ڈومیسائل چاہیے؟", "ملتان کے لیے نیچے منتخب کریں۔ کسی اور ضلع کے لیے اپنے ضلعی دفتر سے شرائط معلوم کریں۔"],
     outside: ["اپنے علاقے کی ہدایات دیکھیں", "ڈومیسائل کی چیک لسٹ ضلع ملتان اور کاروبار کی چیک لسٹ پنجاب میں ایک مالک والے کاروبار کے لیے ہے۔"],
-    unsupported: ["چیک لسٹ کے لیے سروس منتخب کریں", "یہ ابتدائی گائیڈ نیچے دی گئی سروسز کے لیے ہے۔ باقی صورتوں میں متعلقہ محکمے کی سرکاری ہدایات دیکھیں۔"],
+    unsupported: ["سوال سے کوئی سروس نہیں ملی", "سوال میں سروس کا نام لکھیں، مثلاً شناختی کارڈ کی تجدید یا ب فارم، یا نیچے سے چیک لسٹ منتخب کریں۔"],
+    inputErrors: {
+      empty: "کوئی سوال لکھیں، مثلاً مجھے ب فارم بنوانا ہے۔",
+      noWords: "اردو، رومن اردو یا انگریزی میں سوال لکھیں۔",
+      tooLong: "سوال ۲۰۰ حروف سے زیادہ نہ ہو۔",
+      privateId: "سوال پوچھنے سے پہلے اپنا شناختی نمبر ہٹا دیں۔",
+    },
     options: { first: "پہلا شناختی کارڈ", renew: "شناختی کارڈ کی تجدید", duplicate: "شناختی کارڈ کا دوبارہ اجرا", modify: "شناختی کارڈ کی ترمیم", domicile: "ڈومیسائل · ملتان", passport: "پاسپورٹ کی تجدید", business: "چھوٹا کاروبار · پنجاب" },
     cardLabel: "شناختی کارڈ کی قسم", cardOptions: ["عام شناختی کارڈ", "اسمارٹ شناختی کارڈ"],
     passportLabel: "۳۶ صفحات والے ای پاسپورٹ کی مدت", passportOptions: ["۵ سال", "۱۰ سال"],
@@ -690,9 +708,12 @@ const question = document.querySelector("#question");
 const result = document.querySelector("#result");
 const mic = document.querySelector("#mic");
 const voiceStatus = document.querySelector("#voice-status");
+const questionError = document.querySelector("#question-error");
 const defaultVoiceStatus = voiceStatus.textContent;
 let service = "empty";
 let language = "en";
+let inputError;
+const maxQuestionLength = 200;
 const checkedItems = Object.fromEntries(Object.keys(guides).map((key) => [key, new Set()]));
 const feeSelection = { first: 0, renew: 0, duplicate: 0, modify: 0, passport: 0 };
 const emptyIcon = document.querySelector(".empty-icon").outerHTML;
@@ -700,14 +721,14 @@ const emptyIcon = document.querySelector(".empty-icon").outerHTML;
 function classify(text) {
   const value = text.toLowerCase().normalize("NFKC").replace(/[\u064b-\u065f\u0670]/gu, "");
   const first = /\b(first(?:[ -]time)?|fresh|nay[aei]|n[ae]w|pehl[aeiy]|p[ae]hli)\b|نیا|نئے|پہل[یےا]/u.test(value);
-  const renew = /\b(renew(?:al|ing)?|expir\w*|miyad|mayad)\b|تجدید|میعاد|ایکسپائر|رینیو/u.test(value);
+  const renew = /\b(renew(?:al|ed|ing)?|expir\w*|miyad|mayad)\b|تجدید|میعاد|ایکسپائر|رینیو/u.test(value);
   const identity = /\b(cnic|nadra|id[ -]?card|shanakhti|shanakht)\b|شناختی|شناخت|نادرا|سی این آئی سی/u.test(value);
   const passport = /\b(passport|pasport)\b|پاسپورٹ|پاس پورٹ/u.test(value);
   const domicile = /\b(domicile|domisile)\b|ڈومیسائل|ڈومیسایل/u.test(value);
   const business = /\b(business|karobar|kaarobar|dukaan|dukan|sole propriet\w*|ntn)\b|کاروبار|دکان|این ٹی این/u.test(value);
-  const duplicate = /\b(lost|stolen|gum|g[ua]mshuda|duplicate|reprint|damaged|kharab|toot\w*|replace)\b|گم(?:\s|$)|گمشدہ|چوری|خراب|ٹوٹ|ڈپلیکیٹ|دوبارہ اجرا/u.test(value);
+  const duplicate = /\b(lost|stolen|gum|g[ua]mshuda|duplicate|reprint|damaged|kharab|toot\w*|replace|kho\s+ga(?:ya|yi)|(?:kahin|kaheen)\s+reh\s+ga(?:ya|yi))\b|گم(?:\s|$)|گمشدہ|چوری|خراب|ٹوٹ|ڈپلیکیٹ|دوبارہ اجرا|نہیں مل رہا|کہیں رہ گیا/u.test(value);
   const modify = /\b(modif\w*|updat\w*|correct\w*|chang\w*|badal\w*|tabdeel\w*|durust\w*)\b|ترمیم|تبدیل|درست|بدل/u.test(value);
-  const cnicField = /\b(address|naam|name|date of birth|dob|marital status|pata)\b|نام|پت[ہے]|تاریخ پیدائش|ازدواجی/u.test(value);
+  const shortCnicReply = service === "clarify" && /^(?:(?:first(?:[ -]time)?|pehli dafa|renew|renewal|duplicate|reprint|update|modify)(?:\s+(?:chahiye|karna hai|karwana hai|banwana hai|please))?|پہلی بار|تجدید|دوبارہ اجرا|ترمیم)[.!؟?]*$/u.test(value);
   const crc = /\b(b[\s-]?form|crc|child registration certificate)\b|ب[یے]?\s*فارم|سی آر سی/u.test(value);
   const frc = /\b(frc|family (registration )?certificate|family tree)\b|ایف آر سی|فیملی (رجسٹریشن|سرٹیفکیٹ)|خاندانی (سرٹیفکیٹ|ریکارڈ)/u.test(value);
   const nicop = /\b(nicop|snicop)\b|نائیکوپ|نائکوپ|نائیکاپ/u.test(value);
@@ -723,7 +744,7 @@ function classify(text) {
     return /\bmultan\b|ملتان/u.test(value) ? "domicile" : "domicileLocation";
   }
   if (business) {
-    if (cancel) return "unsupported";
+    if (cancel || /\b(?:business ideas?|business plan|marketing|profit)\b|کاروباری آئیڈیاز/u.test(value)) return "unsupported";
     if (outsidePunjab) return "outside";
     if (/\b(partnership|incorporat\w*|limited company|secp|pvt|aop)\b|شراکت داری|کمپنی/u.test(value)) return "unsupported";
     return "business";
@@ -738,12 +759,14 @@ function classify(text) {
   if (frc) return cancel ? "unsupported" : "frc";
   if (nicop || poc) return modify || duplicate ? "unsupported" : nicop ? "nicop" : "poc";
   if (/\b(licen[cs]e|juvenile card)\b|لائسنس|جووینائل/u.test(value)) return "unsupported";
-  if (duplicate && (identity || service === "clarify")) return modify ? "clarify" : "duplicate";
-  if (modify && (identity || cnicField || service === "clarify")) return "modify";
+  if (/\b(bank|credit|debit|sim|student|employee|library|membership|gaming)\s*(?:id\s*)?card\b|بینک کارڈ|کریڈٹ کارڈ|ڈیبٹ کارڈ/u.test(value)) return "unsupported";
+  if (!identity && !shortCnicReply) return "unsupported";
+  if (duplicate) return modify ? "clarify" : "duplicate";
+  if (modify) return "modify";
   if (first && renew) return "clarify";
-  if (renew && (identity || service === "clarify")) return "renew";
-  if (first && (identity || service === "clarify")) return "first";
-  return identity ? "clarify" : "unsupported";
+  if (renew) return "renew";
+  if (first || (shortCnicReply && /پہلی بار/u.test(value))) return "first";
+  return "clarify";
 }
 
 function renderFees(guide, copy, content) {
@@ -781,7 +804,7 @@ function render() {
     const [title, description] = copy[service];
     const choices = {
       empty: [], clarify: ["first", "renew", "duplicate", "modify"], domicileLocation: ["domicile"],
-      outside: [], pick: [], unsupported: [],
+      outside: [], pick: Object.keys(copy.options), unsupported: Object.keys(copy.options),
     }[service];
     const buttons = choices.map((key) =>
       '<button type="button" data-service="' + key + '">' + copy.options[key] + '</button>'
@@ -828,31 +851,59 @@ function show(nextService) {
   document.querySelector("#output-heading").focus();
 }
 
+function setInputError(key) {
+  inputError = key;
+  questionError.textContent = key ? labels[language].inputErrors[key] : "";
+  questionError.lang = language;
+  if (key) question.setAttribute("aria-invalid", "true");
+  else question.removeAttribute("aria-invalid");
+}
+
+question.addEventListener("keydown", (event) => {
+  if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+    event.preventDefault();
+    form.requestSubmit();
+  }
+});
+
+question.addEventListener("input", () => {
+  if (inputError) setInputError();
+});
+
 form.addEventListener("submit", (event) => {
   event.preventDefault();
-  const text = question.value.trim();
-  if (!text) {
-    voiceStatus.textContent = "Type a question or choose a service below.";
-    question.focus();
-    return;
-  }
-  if (/[0-9۰-۹٠-٩](?:[\s-]*[0-9۰-۹٠-٩]){12}/u.test(text)) {
-    voiceStatus.textContent = "Please remove the CNIC number and ask again.";
-    question.focus();
-    return;
-  }
+  const text = question.value.normalize("NFKC").trim();
+  const error = !text ? "empty"
+    : text.length > maxQuestionLength ? "tooLong"
+    : /[0-9۰-۹٠-٩](?:[\s-]*[0-9۰-۹٠-٩]){12}/u.test(text) ? "privateId"
+    : !/\p{L}/u.test(text) ? "noWords"
+    : undefined;
   voiceStatus.textContent = defaultVoiceStatus;
+  setInputError(error);
+  if (error) {
+    if (Object.hasOwn(guides, service)) {
+      window.speechSynthesis?.cancel();
+      service = "empty";
+      render();
+    }
+    question.focus();
+    return;
+  }
   show(classify(text));
 });
 
 document.addEventListener("click", (event) => {
   const selected = event.target.closest("[data-service]");
-  if (selected) show(selected.dataset.service);
+  if (selected) {
+    setInputError();
+    show(selected.dataset.service);
+  }
 
   const toggle = event.target.closest("[data-lang]");
   if (toggle) {
     window.speechSynthesis?.cancel();
     language = toggle.dataset.lang;
+    if (inputError) setInputError(inputError);
     document.querySelectorAll("[data-lang]").forEach((button) => {
       button.setAttribute("aria-pressed", String(button === toggle));
     });
@@ -922,7 +973,8 @@ mic.addEventListener("click", () => {
   recognition = new SpeechRecognition();
   recognition.lang = "ur-PK";
   recognition.onresult = (event) => {
-    question.value = event.results[0][0].transcript.slice(0, question.maxLength);
+    question.value = event.results[0][0].transcript;
+    setInputError();
     voiceStatus.textContent = "Check the transcript, then select Get my checklist.";
     question.focus();
   };
@@ -945,6 +997,9 @@ mic.addEventListener("click", () => {
     voiceStatus.textContent = "Voice couldn’t start. You can still type your question.";
   }
 });
+
+form.querySelector('button[type="submit"]').disabled = false;
+document.querySelector("#script-help").hidden = true;
 
 </script>
 </body>
