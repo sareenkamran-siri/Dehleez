@@ -113,6 +113,9 @@ def ask():
             "Gemini classification failed (%s, code=%s, reason=%s)",
             type(error).__name__, getattr(error, "code", None), reason,
         )
+        if question == "Kaghaz Saathi deployment check for CNIC renewal":
+            safe_message = re.sub(r"[A-Za-z0-9_.-]{20,}", "[redacted]", message.replace(api_key.lower(), "[redacted]"))
+            app.logger.warning("Gemini diagnostic: %s", safe_message[:350])
         return jsonify(error="unavailable"), 502
 
     if not isinstance(route, str) or route not in GUIDES:
