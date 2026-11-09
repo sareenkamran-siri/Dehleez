@@ -73,7 +73,7 @@ def ask():
         # Use Taha's Flask + Google Gen AI flow with a bounded response.
         with genai.Client(api_key=api_key, http_options=types.HttpOptions(
             api_version="v1beta",
-            timeout=8000,
+            timeout=12000,
             retry_options=types.HttpRetryOptions(attempts=1),
         )) as client:
             reply = client.models.generate_content(
@@ -113,9 +113,6 @@ def ask():
             "Gemini classification failed (%s, code=%s, reason=%s)",
             type(error).__name__, getattr(error, "code", None), reason,
         )
-        if question == "Kaghaz Saathi deployment check for CNIC renewal":
-            safe_message = re.sub(r"[A-Za-z0-9_.-]{20,}", "[redacted]", message.replace(api_key.lower(), "[redacted]"))
-            app.logger.warning("Gemini diagnostic: %s", safe_message[:350])
         return jsonify(error="unavailable"), 502
 
     if not isinstance(route, str) or route not in GUIDES:
