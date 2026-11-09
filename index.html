@@ -1,0 +1,951 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Urdu and English guidance for CNIC, domicile, passport renewal and small-business registration in Pakistan.">
+<meta name="theme-color" content="#f7f5ed">
+<title>Kaghaz Saathi | Pakistan paperwork guide</title>
+<style>
+:root {
+  color-scheme: light;
+  --paper: #f7f5ed;
+  --white: #fffef9;
+  --forest: #133d30;
+  --green: #1a6147;
+  --soft: #e7efe1;
+  --muted: #496155;
+  --line: #dbe2d4;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--forest); font: 16px/1.5 system-ui, sans-serif; }
+button, textarea { font: inherit; }
+button { cursor: pointer; }
+a { color: var(--green); text-underline-offset: .22em; }
+button:focus-visible, a:focus-visible, textarea:focus-visible { outline: 3px solid #467a5a; outline-offset: 3px; }
+.wrap { max-width: 1190px; width: calc(100% - 72px); margin-inline: auto; }
+.top { height: 76px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); gap: 10px; }
+.brand { display: inline-flex; align-items: center; gap: .28em; color: var(--forest); text-decoration: none; font-size: 19px; font-weight: 650; white-space: nowrap; }
+.brand strong { color: var(--green); }
+.mark { display: grid; place-items: center; width: 39px; height: 39px; border-radius: 11px; background: var(--forest); color: #e9f5e7; margin-right: 5px; }
+svg { display: block; }
+.mark svg, .mic svg, .empty-icon svg { width: 23px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.source-top, .footer a { font-size: 13px; font-weight: 650; }
+.hero { display: grid; grid-template-columns: 1.03fr .97fr; gap: 34px; align-items: center; padding: 37px 0 31px; }
+.eyebrow, .section-tag { margin: 0; display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 750; letter-spacing: .13em; color: var(--green); }
+.eyebrow span { width: 8px; height: 8px; background: #6d9c6c; border-radius: 50%; }
+h1 { margin: 12px 0; font: 700 clamp(39px, 5.3vw, 74px)/.99 Georgia, serif; letter-spacing: -.05em; }
+h1 em { font-weight: 400; color: var(--green); }
+.urdu-intro { display: inline-block; margin: 2px 0 0; color: var(--green); font-size: 21px; }
+.intro-text { color: var(--muted); margin: 10px 0 0; max-width: 440px; }
+.illustration { background: #e5efdf; border: 1px solid #d1dfcb; border-radius: 22px; overflow: hidden; }
+.illustration svg { width: 100%; }
+.workspace { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
+.panel { padding: 23px 25px; min-width: 0; border: 1px solid var(--line); border-radius: 19px; background: var(--white); }
+.section-tag span { width: 16px; height: 1px; background: #87a690; }
+h2 { margin: 10px 0 16px; font: 700 clamp(24px, 3.2vw, 33px)/1.14 Georgia, serif; letter-spacing: -.025em; }
+label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.field { display: flex; align-items: start; background: #fbfbf5; border: 1px solid #c9d5c7; border-radius: 12px; padding: 7px; }
+textarea { display: block; flex: 1; width: 100%; min-width: 0; padding: 8px; resize: vertical; color: var(--forest); border: 0; border-radius: 5px; background: transparent; }
+textarea::placeholder { color: #526b5b; }
+.mic { display: grid; place-items: center; width: 42px; height: 42px; flex: none; border-radius: 9px; border: 0; background: var(--soft); color: var(--green); }
+.mic[aria-pressed="true"] { background: var(--green); color: white; }
+.hint { margin: 7px 0 13px; min-height: 2em; font-size: 12px; color: var(--muted); }
+.primary { display: flex; width: 100%; justify-content: space-between; align-items: center; background: var(--green); color: white; padding: 11px 14px; border: 0; border-radius: 9px; font-weight: 680; }
+.primary:hover { background: var(--forest); }
+.quick { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 12px; }
+.quick > span { font-size: 12px; font-weight: 700; color: var(--muted); }
+.choices { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 7px; }
+.choices button { background: var(--white); color: var(--green); border: 1px solid #cbdac9; border-radius: 99px; padding: 6px 12px; font-size: 13px; font-weight: 680; }
+.choices button:hover, .choices button[aria-pressed="true"] { background: var(--soft); border-color: #87a690; }
+.output { min-height: 365px; }
+.result-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.toggle { display: flex; background: var(--soft); border-radius: 9px; padding: 3px; }
+.toggle button { padding: 4px 9px; border: 0; border-radius: 6px; color: var(--green); background: transparent; font-size: 12px; font-weight: 700; }
+.toggle button[aria-pressed="true"] { background: var(--white); }
+.empty { text-align: center; margin: 22px 0 0; min-height: 261px; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 18px; border: 1px dashed #bacdb6; border-radius: 13px; background: #f6f9f2; }
+.empty-icon { width: 49px; height: 49px; border-radius: 13px; background: var(--soft); color: var(--green); display: grid; place-items: center; }
+.empty h2 { font-size: 23px; margin: 13px 0 5px; }
+.empty p { max-width: 280px; margin: 0; font-size: 14px; color: var(--muted); }
+.empty .choices { justify-content: center; margin-top: 13px; }
+.guide { margin-top: 13px; }
+.guide h2 { margin-bottom: 6px; }
+.guide h3 { font-size: 15px; margin: 16px 0 6px; }
+.guide p { color: var(--muted); font-size: 14px; margin: 5px 0; }
+.guide ul { padding: 0; margin: 0; list-style: none; }
+.guide li label { display: flex; align-items: start; gap: 8px; font-size: 14px; font-weight: 500; padding: 7px 0; border-bottom: 1px solid var(--line); margin: 0; }
+.guide input { accent-color: var(--green); margin: 4px 0 0; flex: none; }
+.fees { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 5px 0; }
+.fees div { border-radius: 8px; background: var(--soft); padding: 7px; min-width: 0; }
+.fees dt { color: var(--muted); font-size: 12px; }
+.fees dd { margin: 1px 0 0; font-size: 14px; font-weight: 700; }
+.links { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 11px; font-size: 13px; font-weight: 650; }
+[lang="ur"] { font-family: system-ui, sans-serif; }
+.guide[dir="rtl"] h2 { font-family: system-ui, sans-serif; }
+.footer { border-top: 1px solid var(--line); margin-top: 25px; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 12px 0 19px; }
+.footer p { color: var(--muted); font-size: 13px; margin: 0; }
+@media (max-width: 760px) {
+  .wrap { width: calc(100% - 32px); }
+  .top { height: 64px; }
+  .hero { grid-template-columns: 1fr; gap: 17px; padding: 24px 0 20px; }
+  .illustration svg { max-height: 160px; }
+  .workspace { grid-template-columns: 1fr; gap: 12px; }
+  .panel { padding: 16px; }
+  .output { min-height: 0; }
+  .empty { min-height: 186px; margin-top: 12px; }
+  .footer { align-items: start; }
+}
+
+.steps { margin: 4px 0 9px; padding-inline-start: 1.5rem; font-size: 14px; }
+.steps li { padding-inline-start: .25rem; margin-block: 5px; }
+.steps li::marker { color: var(--green); font-weight: 750; }
+.fee-controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 7px; }
+.fee-controls label { margin: 0; }
+.fee-controls select, .read-aloud { font: inherit; font-size: 13px; color: var(--green); border: 1px solid #cbdac9; background: var(--white); border-radius: 8px; padding: 6px 9px; }
+.read-aloud { margin: 5px 0; font-weight: 650; }
+.read-aloud:hover { background: var(--soft); }
+.read-status { display: block; font-size: 12px; color: var(--muted); }
+.read-status:empty { display: none; }
+.more-services { margin-top: 13px; border-top: 1px solid var(--line); padding-top: 10px; }
+.more-services summary { width: fit-content; cursor: pointer; font-size: 13px; font-weight: 700; color: var(--green); }
+.more-services summary:focus-visible { outline: 3px solid #467a5a; outline-offset: 3px; }
+
+</style>
+
+
+
+</head>
+<body>
+<header class="top wrap">
+  <a class="brand" href="./" aria-label="Kaghaz Saathi home">
+    <span class="mark"><svg viewBox="0 0 32 32" aria-hidden="true"><rect x="4" y="7" width="24" height="18" rx="3"/><circle cx="12" cy="14" r="2.5"/><path d="M8 21c0-3.8 8-3.8 8 0m3-7h5m-5 5h5"/></svg></span>
+    Kaghaz <strong>Saathi</strong>
+  </a>
+  <a class="source-top" href="#ask-form">Find a checklist</a>
+</header>
+<main class="wrap">
+  <section class="hero" aria-labelledby="headline">
+    <div class="intro">
+      <p class="eyebrow"><span></span> PAKISTAN · PUBLIC SERVICES</p>
+      <h1 id="headline">Government paperwork,<br><em>one step at a time.</em></h1>
+      <p class="urdu-intro" lang="ur" dir="rtl">سرکاری کاغذات کی آسان رہنمائی</p>
+      <p class="intro-text">Ask in Urdu, Roman Urdu, or English. Find out what to bring, where to start and what it costs.</p>
+    </div>
+    <div class="illustration" aria-hidden="true">
+      <svg viewBox="0 0 520 275" fill="none">
+        <defs><pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse"><path d="M24 0H0V24" stroke="#d1e1c9" stroke-width="1"/></pattern></defs>
+        <rect width="520" height="275" fill="url(#grid)"/>
+        <circle cx="274" cy="137" r="116" stroke="#b3c9ab" stroke-dasharray="4 6"/>
+        <circle cx="274" cy="137" r="92" stroke="#c6d9be"/>
+        <path d="M75 72h24m-12-12v24m342 111h20m-10-10v20" stroke="#568165" stroke-width="2"/>
+        <g transform="rotate(-9 242 132)">
+          <rect x="100" y="60" width="277" height="154" rx="17" fill="#a9c4a9" opacity=".55"/>
+          <rect x="95" y="53" width="277" height="154" rx="17" fill="#134b37"/>
+          <path d="M95 172c95-67 168 44 277-20v38a17 17 0 0 1-17 17H112a17 17 0 0 1-17-17z" fill="#1c6048"/>
+          <text x="117" y="81" fill="#d3ead3" font-family="system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="2">PAPERWORK GUIDE</text>
+          <rect x="117" y="96" width="59" height="68" rx="9" fill="#2b7157"/>
+          <circle cx="146" cy="119" r="9" fill="#cce5ce"/>
+          <path d="M130 150c0-19 32-19 32 0z" fill="#cce5ce"/>
+          <path d="M195 107h108m-108 19h80m-80 19h92" stroke="#a7cdb1" stroke-width="6" stroke-linecap="round"/>
+          <path d="M117 183h82" stroke="#a7cdb1" stroke-width="4" stroke-linecap="round"/>
+        </g>
+        <g transform="rotate(8 359 170)">
+          <rect x="303" y="117" width="113" height="111" rx="14" fill="#99b69b" opacity=".5"/>
+          <rect x="298" y="111" width="113" height="111" rx="14" fill="#fffcf2" stroke="#c3d3b9"/>
+          <path d="m314 137 4 4 8-9m-12 30 4 4 8-9m-12 30 4 4 8-9" stroke="#176045" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M339 137h48m-48 25h39m-39 25h48" stroke="#adc5aa" stroke-width="5" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+  </section>
+
+  <section class="workspace" aria-label="Government paperwork checklist tool">
+    <div class="panel ask">
+      <p class="section-tag">01 <span></span> YOUR QUESTION</p>
+      <h2>How can we help?</h2>
+      <form id="ask-form">
+        <label for="question">Type or speak your question</label>
+        <div class="field">
+          <textarea id="question" rows="2" maxlength="200" dir="auto" placeholder="Mujhe naya CNIC banwana hai…"></textarea>
+          <button id="mic" type="button" class="mic" aria-label="Speak in Urdu" aria-pressed="false" title="Speak in Urdu">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11v1a7 7 0 0 0 14 0v-1M12 19v3m-3 0h6"/></svg>
+          </button>
+        </div>
+        <p class="hint" id="voice-status" role="status">Urdu voice uses your browser’s speech service. Please leave out ID numbers and personal details.</p>
+        <button class="primary" type="submit">Get my checklist <span aria-hidden="true">→</span></button>
+      </form>
+      <div class="quick">
+        <span>Or choose a service</span>
+        <div class="choices">
+          <button type="button" data-service="first" aria-pressed="false">First CNIC</button>
+          <button type="button" data-service="renew" aria-pressed="false">CNIC renewal</button>
+          <button type="button" data-service="domicile" aria-pressed="false">Domicile · Multan</button>
+          <button type="button" data-service="passport" aria-pressed="false">Passport renewal</button>
+          <button type="button" data-service="business" aria-pressed="false">Small business · Punjab</button>
+        </div>
+        <details class="more-services">
+          <summary>More NADRA services</summary>
+          <div class="choices">
+            <button type="button" data-service="duplicate" aria-pressed="false">Lost or damaged CNIC</button>
+            <button type="button" data-service="modify" aria-pressed="false">Update CNIC</button>
+            <button type="button" data-service="crc" aria-pressed="false">B-Form / CRC</button>
+            <button type="button" data-service="frc" aria-pressed="false">Family certificate / FRC</button>
+            <button type="button" data-service="nicop" aria-pressed="false">Smart NICOP</button>
+            <button type="button" data-service="poc" aria-pressed="false">Pakistan Origin Card</button>
+            <button type="button" data-service="cancellation" aria-pressed="false">ID cancellation</button>
+          </div>
+        </details>
+      </div>
+    </div>
+
+    <section class="panel output" aria-labelledby="output-heading">
+      <div class="result-top">
+        <p class="section-tag">02 <span></span> YOUR CHECKLIST</p>
+        <div class="toggle" role="group" aria-label="Checklist language">
+          <button type="button" data-lang="en" aria-pressed="true">English</button>
+          <button type="button" data-lang="ur" lang="ur" aria-pressed="false">اردو</button>
+        </div>
+      </div>
+      <div id="result" aria-live="polite">
+        <div class="empty">
+          <div class="empty-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="8" y="2" width="8" height="6" rx="2"/><path d="m8 15 3 3 5-6"/></svg></div>
+          <h2 id="output-heading" tabindex="-1">Your checklist will appear here</h2>
+          <p>Ask a question or choose a service to see what to prepare and where to apply.</p>
+        </div>
+      </div>
+    </section>
+  </section>
+</main>
+<footer class="wrap footer">
+  <p><strong>Kaghaz Saathi</strong> · Independent hackathon prototype · Shareable demo</p>
+  <p>Official references are linked in each checklist.</p>
+</footer>
+<script>
+"use strict";
+
+const additionalGuides = {
+  domicile: {
+    links: [
+      ["e-Khidmat requirements and fees", "ای خدمت کی شرائط اور فیس", "https://ekhidmat.punjab.gov.pk/services/e-khidmat-marakaz/domicile-certificate"],
+      ["Multan Domicile Branch", "ملتان ڈومیسائل برانچ", "https://multan.punjab.gov.pk/domicile-branch"],
+    ],
+    en: {
+      title: "Apply for a domicile in Multan",
+      summary: "For a fresh domicile certificate in Multan district.",
+      items: [
+        "Assistant Commissioner verification form and Form P.",
+        "Applicable identity document. e-Khidmat lists applicant or parent/spouse CNIC, B-Form or birth certificate.",
+        "Two recent passport-size photos and the required affidavit.",
+        "Proof of residence, such as a utility bill, property record, residence certificate, education record or voter-list entry.",
+      ],
+      steps: [
+        "Go to e-Khidmat Markaz on Matti Tal Road, Multan. Ask for the domicile application desk.",
+        "Submit the forms and evidence and follow the centre’s online payment instructions.",
+        "Collect the issued certificate from e-Khidmat after processing by the relevant office.",
+      ],
+      feeText: "PKR 200 service fee. The official checklist separately lists PKR 300 for the affidavit.",
+    },
+    ur: {
+      title: "ملتان میں ڈومیسائل بنوائیں",
+      summary: "ملتان ضلع میں پہلی بار ڈومیسائل بنوانے کے لیے۔",
+      items: [
+        "اسسٹنٹ کمشنر کا تصدیقی فارم اور فارم پی۔",
+        "اپنے کیس کے مطابق شناختی دستاویز۔ ای خدمت کی فہرست میں اپنا، والدین یا شریک حیات کا شناختی کارڈ، ب فارم یا پیدائش کا سرٹیفکیٹ شامل ہیں۔",
+        "پاسپورٹ سائز کی دو تازہ تصاویر اور مطلوبہ حلف نامہ۔",
+        "رہائش کا ثبوت، مثلاً بجلی یا گیس کا بل، جائیداد کا ریکارڈ، رہائشی سرٹیفکیٹ، تعلیمی دستاویز یا ووٹر لسٹ کا اندراج۔",
+      ],
+      steps: [
+        "مٹی تل روڈ، ملتان پر ای خدمت مرکز جائیں اور ڈومیسائل درخواست کے کاؤنٹر کا پوچھیں۔",
+        "فارم اور دستاویزات جمع کریں اور آن لائن ادائیگی کے لیے مرکز کی ہدایات پر عمل کریں۔",
+        "متعلقہ دفتر کی کارروائی کے بعد سرٹیفکیٹ ای خدمت مرکز سے وصول کریں۔",
+      ],
+      feeText: "سروس فیس ۲۰۰ روپے ہے۔ سرکاری فہرست میں حلف نامے کے لیے الگ سے ۳۰۰ روپے درج ہیں۔",
+    },
+  },
+  passport: {
+    links: [
+      ["DGI&P requirements and e-passport fees", "پاسپورٹ کی شرائط اور ای پاسپورٹ کی فیس", "https://dgip.gov.pk/passport/ordinary-passport.php"],
+      ["Passport office directory", "پاسپورٹ دفاتر کی فہرست", "https://www.dgip.gov.pk/contactus/offices.php"],
+    ],
+    en: {
+      title: "Renew an adult passport",
+      summary: "For an applicant aged 18 or older renewing a passport in Pakistan. The fee selector below covers 36-page e-passports.",
+      items: [
+        "Original valid CNIC or NICOP and a photocopy.",
+        "Original previous passport and a photocopy.",
+        "Department NOC, if you work for a government, semi-government or autonomous body.",
+        "Original foreign passport and a copy, if you have dual nationality.",
+      ],
+      steps: [
+        "Start at the Customer Service Counter at a Regional Passport Office. The DGI&P page also links to online renewal.",
+        "At the office, follow photo and token issuance, fingerprints, data entry, verification and the Assistant Director’s review.",
+        "Follow the official payment and collection instructions for your application.",
+      ],
+      feeNote: "For machine-readable passports, other page counts or priorities, confirm the matching fee with DGI&P before paying.",
+    },
+    ur: {
+      title: "بالغ افراد کے پاسپورٹ کی تجدید",
+      summary: "پاکستان میں ۱۸ سال یا اس سے زیادہ عمر کے درخواست گزاروں کے لیے۔ نیچے ۳۶ صفحات والے ای پاسپورٹ کی فیس ہے۔",
+      items: [
+        "اصل، کارآمد شناختی کارڈ یا نائیکوپ اور ایک فوٹو کاپی۔",
+        "اصل پرانا پاسپورٹ اور ایک فوٹو کاپی۔",
+        "سرکاری، نیم سرکاری یا خود مختار ادارے کے ملازم اپنے ادارے کا این او سی لائیں۔",
+        "دوہری شہریت رکھنے والے اصل غیر ملکی پاسپورٹ اور اس کی فوٹو کاپی بھی لائیں۔",
+      ],
+      steps: [
+        "ریجنل پاسپورٹ آفس کے کسٹمر سروس کاؤنٹر سے شروع کریں۔ آن لائن تجدید کا لنک بھی سرکاری صفحے پر موجود ہے۔",
+        "دفتر میں تصویر، ٹوکن، فنگر پرنٹس، ڈیٹا انٹری، تصدیق اور اسسٹنٹ ڈائریکٹر کی جانچ کے مراحل مکمل کریں۔",
+        "اپنی درخواست کی فیس اور وصولی کے لیے سرکاری ہدایات پر عمل کریں۔",
+      ],
+      feeNote: "مشین ریڈایبل پاسپورٹ، دیگر صفحات یا ترجیحی کیٹیگری کی فیس ادائیگی سے پہلے سرکاری ذرائع سے دیکھیں۔",
+    },
+  },
+  business: {
+    links: [
+      ["FBR individual registration", "ایف بی آر کی انفرادی رجسٹریشن", "https://fbr.gov.pk/categ/income-tax/51148/30846/71150"],
+      ["Punjab one-window procedure", "پنجاب کا ون ونڈو طریقہ", "https://www.fbr.gov.pk/one-window-facility-for-registration-of-businesses-in-punjab-with-fbr-launched/152876"],
+      ["Punjab Business Facilitation Centre", "پنجاب بزنس فیسیلیٹیشن سینٹر", "https://bfc.punjab.gov.pk/"],
+    ],
+    en: {
+      title: "Register a sole proprietor in Punjab",
+      summary: "For a business with one owner. This checklist covers individual income-tax registration and the Punjab one-window route.",
+      items: [
+        "A SIM registered in your name and your own email address.",
+        "Bank account maintenance certificate for an account in your own name.",
+        "Evidence that you rent or own the business premises, and a paid utility bill for those premises no older than three months.",
+        "If applying in person, take your original CNIC and original supporting documents.",
+      ],
+      steps: [
+        "Start on the Punjab Business Registration Portal linked by FBR, or use FBR Iris for individual income-tax registration.",
+        "For in-person income-tax registration, ask for the Facilitation Counter at an FBR Tax House.",
+        "Check with Punjab’s Business Facilitation Centre for licences or permits specific to your activity.",
+      ],
+      feeText: "Check the official fee for your activity and permit with the Business Facilitation Centre. These sources do not give a single fee for all small businesses.",
+    },
+    ur: {
+      title: "پنجاب میں ایک مالک والا کاروبار رجسٹر کریں",
+      summary: "یہ رہنمائی ایک مالک والے کاروبار کی انفرادی انکم ٹیکس رجسٹریشن اور پنجاب کے ون ونڈو طریقے کے لیے ہے۔",
+      items: [
+        "اپنے نام پر رجسٹرڈ سم اور اپنا ای میل ایڈریس۔",
+        "اپنے نام کے بینک اکاؤنٹ کا مینٹیننس سرٹیفکیٹ۔",
+        "کاروباری جگہ کی ملکیت یا کرایہ داری کا ثبوت اور اس جگہ کا ادا شدہ یوٹیلٹی بل جو تین ماہ سے زیادہ پرانا نہ ہو۔",
+        "دفتر میں درخواست دینے کے لیے اصل شناختی کارڈ اور اصل متعلقہ دستاویزات ساتھ رکھیں۔",
+      ],
+      steps: [
+        "ایف بی آر کے دیے ہوئے پنجاب بزنس رجسٹریشن پورٹل سے شروع کریں، یا انفرادی ٹیکس رجسٹریشن کے لیے آئرس استعمال کریں۔",
+        "دفتر میں درخواست دینے کے لیے ایف بی آر ٹیکس ہاؤس کے فیسیلیٹیشن کاؤنٹر جائیں۔",
+        "اپنے کاروبار کے لیے درکار لائسنس یا اجازت نامہ پنجاب بزنس فیسیلیٹیشن سینٹر سے معلوم کریں۔",
+      ],
+      feeText: "اپنے کاروبار اور اجازت نامے کی فیس بزنس فیسیلیٹیشن سینٹر سے معلوم کریں۔ ان ذرائع میں تمام چھوٹے کاروباروں کے لیے ایک فیس درج نہیں ہے۔",
+    },
+  },
+};
+
+</script>
+<script>
+"use strict";
+
+const nadraFeeLink = ["Official NADRA fees", "نادرا کی سرکاری فیس", "https://www.nadra.gov.pk/feeStructure"];
+const pakIdLink = ["Official PakID FAQs", "پاک آئی ڈی کے سوالات", "https://www.nadra.gov.pk/pakIdentityFaqs"];
+
+const nadraGuides = {
+  duplicate: {
+    normalFee: "400",
+    links: [
+      ["NADRA reprint requirements", "نادرا کی دوبارہ اجرا کی شرائط", "https://www.nadra.gov.pk/identityDocument/cnic?action=reprint"],
+      nadraFeeLink, pakIdLink,
+    ],
+    en: {
+      title: "Replace a lost or damaged CNIC",
+      summary: "Use reprint for a CNIC that was lost, stolen or damaged when your details are unchanged.",
+      items: ["Have your existing CNIC number ready for NADRA."],
+      steps: [
+        "Select CNIC Reprint/Lost in PakID, or ask for a reprint token at a NADRA Registration Centre.",
+        "Complete the verification requested by NADRA and check the fee for your card type.",
+      ],
+    },
+    ur: {
+      title: "گم یا خراب شناختی کارڈ کا دوبارہ اجرا",
+      summary: "گم، چوری یا خراب ہونے والے شناختی کارڈ کے لیے، جب آپ کی معلومات وہی ہوں۔",
+      items: ["نادرا کو دینے کے لیے اپنے موجودہ شناختی کارڈ کا نمبر تیار رکھیں۔"],
+      steps: [
+        "پاک آئی ڈی میں گم شدہ کارڈ یا دوبارہ اجرا کا آپشن منتخب کریں، یا نادرا سینٹر میں اسی کام کا ٹوکن لیں۔",
+        "نادرا کی بتائی گئی تصدیق مکمل کریں اور اپنے کارڈ کی قسم کے مطابق فیس دیکھیں۔",
+      ],
+    },
+  },
+  modify: {
+    normalFee: "400",
+    links: [
+      ["NADRA CNIC guidance", "نادرا کی شناختی کارڈ ہدایات", "https://www.nadra.gov.pk/identityDocument/cnic"],
+      ["NADRA registration policy and forms", "نادرا کی رجسٹریشن پالیسی اور فارم", "https://www.nadra.gov.pk/downloads"],
+      nadraFeeLink, pakIdLink,
+    ],
+    en: {
+      title: "Update CNIC details",
+      summary: "For changes to name, address, date of birth or other NADRA record details.",
+      items: [
+        "Have your current CNIC or its number ready for NADRA.",
+        "Prepare official evidence for the specific change. Check NADRA’s policy for accepted documents before visiting.",
+      ],
+      steps: [
+        "Start a CNIC modification in PakID, or ask for a modification token at a NADRA Registration Centre.",
+        "Specify which field needs changing and follow NADRA’s instructions for evidence and verification.",
+      ],
+      feeNote: "The fees above are for a standard card modification. Date-of-birth changes and non-printed record updates have separate fee rules.",
+    },
+    ur: {
+      title: "شناختی کارڈ کی معلومات بدلیں",
+      summary: "نام، پتے، تاریخ پیدائش یا نادرا ریکارڈ میں دوسری معلومات بدلنے کے لیے۔",
+      items: [
+        "موجودہ شناختی کارڈ یا اس کا نمبر نادرا کے لیے تیار رکھیں۔",
+        "جس معلومات میں تبدیلی چاہیے اس کا سرکاری ثبوت تیار رکھیں۔ جانے سے پہلے نادرا کی پالیسی میں قابل قبول دستاویزات دیکھیں۔",
+      ],
+      steps: [
+        "پاک آئی ڈی میں شناختی کارڈ کی ترمیم شروع کریں یا نادرا سینٹر میں ترمیم کا ٹوکن لیں۔",
+        "بتائیں کون سی معلومات بدلنی ہیں اور ثبوت اور تصدیق کے لیے نادرا کی ہدایات پر عمل کریں۔",
+      ],
+      feeNote: "اوپر عام ترمیم کی فیس ہے۔ تاریخ پیدائش کی تبدیلی اور کارڈ پر نہ چھپنے والی معلومات کی فیس الگ ہو سکتی ہے۔",
+    },
+  },
+  crc: {
+    links: [
+      ["NADRA B-Form requirements by age", "ب فارم کی عمر کے مطابق شرائط", "https://www.nadra.gov.pk/identityDocument/juvenile?action=new"],
+      nadraFeeLink, pakIdLink,
+    ],
+    en: {
+      title: "Get a B-Form (CRC)",
+      summary: "First registration for a Pakistani child under 18. NADRA’s requirements for a photo or biometrics depend on age.",
+      items: [
+        "For a birth in Pakistan, get the computerized birth certificate from the Union Council, Municipal Committee or Cantonment.",
+        "For a birth abroad, check the foreign detailed birth certificate or S-1 Form requirement.",
+        "Take the child for ages 3 and up. For a younger child, check whether the CRC is for passport processing, which requires a photo.",
+      ],
+      steps: [
+        "A parent or guardian can start a fresh CRC in PakID or ask for child registration at a NADRA Registration Centre.",
+        "Follow the age-specific photo and biometric instructions and confirm the processing priority.",
+      ],
+      feeText: "CRC processing fee: PKR 50 Normal or PKR 500 Executive.",
+    },
+    ur: {
+      title: "ب فارم بنوائیں",
+      summary: "۱۸ سال سے کم عمر پاکستانی بچے کی پہلی رجسٹریشن۔ تصویر اور بائیومیٹرک کی شرائط عمر کے مطابق ہیں۔",
+      items: [
+        "پاکستان میں پیدائش کے لیے یونین کونسل، میونسپل کمیٹی یا کنٹونمنٹ کا کمپیوٹرائزڈ پیدائش سرٹیفکیٹ۔",
+        "بیرون ملک پیدائش کے لیے تفصیلی پیدائش سرٹیفکیٹ یا ایس ۱ فارم کی شرط دیکھیں۔",
+        "تین سال یا اس سے زیادہ عمر کے بچے کو ساتھ لے جائیں۔ اس سے کم عمر میں پاسپورٹ کے لیے ب فارم بنے تو تصویر کی شرط دیکھیں۔",
+      ],
+      steps: [
+        "والدین یا سرپرست پاک آئی ڈی میں نیا ب فارم شروع کریں یا نادرا سینٹر میں بچے کی رجسٹریشن کا پوچھیں۔",
+        "بچے کی عمر کے مطابق تصویر اور بائیومیٹرک کی ہدایات پر عمل کریں اور درخواست کی ترجیح منتخب کریں۔",
+      ],
+      feeText: "ب فارم کی فیس نارمل ۵۰ روپے اور ایگزیکٹو ۵۰۰ روپے ہے۔",
+    },
+  },
+  frc: {
+    links: [
+      ["NADRA FRC categories and requirements", "ایف آر سی کی اقسام اور شرائط", "https://www.nadra.gov.pk/identityDocument/certificates/frc?tab=frc"],
+      nadraFeeLink, pakIdLink,
+    ],
+    en: {
+      title: "Get a Family Registration Certificate",
+      summary: "An FRC shows family relationships recorded by NADRA.",
+      items: [
+        "Have the applicant’s 13-digit NADRA ID number ready for the official application.",
+        "Check which family record you need: parents and siblings (By Birth), spouse and children (By Marriage), By Adoption, or both birth and marriage (By All).",
+      ],
+      steps: [
+        "Apply for an FRC in PakID or request the FRC service at a NADRA Registration Centre.",
+        "Review who appears in the selected family record. If someone is missing or linked incorrectly, ask NADRA how to correct the underlying record.",
+      ],
+      feeText: "PKR 1,000 for By Birth, By Marriage or By Adoption. PKR 2,000 for By All (Both).",
+    },
+    ur: {
+      title: "فیملی رجسٹریشن سرٹیفکیٹ بنوائیں",
+      summary: "ایف آر سی نادرا کے ریکارڈ میں درج خاندانی رشتے دکھاتا ہے۔",
+      items: [
+        "آفیشل درخواست کے لیے درخواست گزار کا ۱۳ ہندسوں والا نادرا شناختی نمبر تیار رکھیں۔",
+        "ضرورت کے مطابق قسم منتخب کریں۔ پیدائش کے تحت والدین اور بہن بھائی، شادی کے تحت شریک حیات اور بچے، گود لینے کے تحت متعلقہ خاندان، یا پیدائش اور شادی دونوں۔",
+      ],
+      steps: [
+        "پاک آئی ڈی میں ایف آر سی کی درخواست دیں یا نادرا سینٹر میں ایف آر سی سروس کا پوچھیں۔",
+        "خاندان کا ریکارڈ دیکھیں۔ اگر کوئی فرد غائب ہے یا رشتہ غلط درج ہے تو نادرا سے اصل ریکارڈ کی درستی پوچھیں۔",
+      ],
+      feeText: "پیدائش، شادی یا گود لینے کے تحت فیس ۱۰۰۰ روپے ہے۔ پیدائش اور شادی دونوں کے لیے ۲۰۰۰ روپے۔",
+    },
+  },
+  nicop: {
+    links: [
+      ["NADRA NICOP requirements", "نائیکوپ کی شرائط", "https://www.nadra.gov.pk/identityDocument/nicop"],
+      nadraFeeLink, pakIdLink,
+    ],
+    en: {
+      title: "Apply for or renew a Smart NICOP",
+      summary: "For Pakistani citizens living abroad or otherwise eligible for NICOP.",
+      items: [
+        "For a new application, check the applicable birth or citizenship record and family ID or verification evidence.",
+        "For an overseas fresh application, prepare the passport, residence permit or other travel evidence accepted by NADRA.",
+        "For renewal, have your existing NICOP details ready and follow the evidence prompts for that case.",
+      ],
+      steps: [
+        "Choose New NICOP or Renewal in PakID. If in-person verification is requested, follow the centre or mission instructions shown for your application.",
+        "Confirm your country’s fee zone and priority before paying.",
+      ],
+      feeText: "New and renewal, in Normal / Urgent / Executive order: Zone A USD 39 / 57 / 75. Zone B USD 20 / 30 / 40. Check NADRA’s zone and conversion rules.",
+    },
+    ur: {
+      title: "اسمارٹ نائیکوپ بنوائیں یا تجدید کریں",
+      summary: "بیرون ملک رہنے والے یا نائیکوپ کے لیے اہل پاکستانی شہریوں کے لیے۔",
+      items: [
+        "نئی درخواست کے لیے پیدائش یا شہریت کا متعلقہ ریکارڈ اور خاندانی شناخت یا تصدیق کا ثبوت دیکھیں۔",
+        "بیرون ملک سے نئی درخواست کے لیے پاسپورٹ، رہائشی اجازت نامہ یا نادرا کا منظور کردہ سفری ثبوت تیار رکھیں۔",
+        "تجدید کے لیے موجودہ نائیکوپ کی تفصیلات تیار رکھیں اور اپنے کیس کی دستاویزات کے لیے ہدایات دیکھیں۔",
+      ],
+      steps: [
+        "پاک آئی ڈی میں نیا نائیکوپ یا تجدید منتخب کریں۔ حاضری کی ضرورت ہو تو متعلقہ سینٹر یا پاکستانی مشن کی ہدایات پر عمل کریں۔",
+        "ادائیگی سے پہلے اپنے ملک کا فیس زون اور ترجیح چیک کریں۔",
+      ],
+      feeText: "نئے کارڈ اور تجدید کے لیے نارمل، ارجنٹ اور ایگزیکٹو فیس۔ زون اے ۳۹، ۵۷، ۷۵ امریکی ڈالر۔ زون بی ۲۰، ۳۰، ۴۰ امریکی ڈالر۔ نادرا سے زون اور شرح تبادلہ دیکھیں۔",
+    },
+  },
+  poc: {
+    links: [
+      ["NADRA POC guidance", "پی او سی کی ہدایات", "https://www.nadra.gov.pk/identityDocument/poc?action=new"],
+      ["Pakistan mission document guidance", "پاکستانی مشن کی دستاویزی ہدایات", "https://mofa.gov.pk/milan-pakistan-origin-card-poc"],
+      nadraFeeLink, pakIdLink,
+    ],
+    en: {
+      title: "Apply for or renew a Pakistan Origin Card",
+      summary: "For eligible foreign nationals with a qualifying connection to Pakistan.",
+      items: [
+        "Have a valid foreign passport ready.",
+        "For a fresh POC, prepare proof of your Pakistani connection, such as a previous Pakistani ID or a qualifying relative’s documents, as applicable.",
+        "For renewal, have the existing POC ready. Check any additional proof required for your eligibility category.",
+      ],
+      steps: [
+        "Select New POC or Renewal in PakID and follow the evidence instructions for your eligibility category.",
+        "If applying through a Pakistani mission, check that mission’s document and appointment instructions.",
+      ],
+      feeText: "New POC and renewal: USD 150 Normal, USD 200 Urgent, USD 250 Executive.",
+    },
+    ur: {
+      title: "پاکستان اوریجن کارڈ بنوائیں یا تجدید کریں",
+      summary: "پاکستان سے متعلقہ اہلیت رکھنے والے غیر ملکی شہریوں کے لیے۔",
+      items: [
+        "کارآمد غیر ملکی پاسپورٹ تیار رکھیں۔",
+        "نئے کارڈ کے لیے پاکستانی تعلق کا ثبوت تیار کریں، مثلاً سابق پاکستانی شناختی دستاویز یا اہل رشتہ دار کی متعلقہ دستاویز۔",
+        "تجدید کے لیے موجودہ پی او سی تیار رکھیں۔ اپنی اہلیت کی قسم کے مطابق اضافی ثبوت کی شرط دیکھیں۔",
+      ],
+      steps: [
+        "پاک آئی ڈی میں نیا پی او سی یا تجدید منتخب کریں اور اپنی اہلیت کے مطابق دستاویزات کی ہدایات دیکھیں۔",
+        "پاکستانی مشن کے ذریعے درخواست دینے کے لیے اسی مشن کی دستاویزات اور اپائنٹمنٹ کی ہدایات دیکھیں۔",
+      ],
+      feeText: "نئے کارڈ اور تجدید کی فیس نارمل ۱۵۰، ارجنٹ ۲۰۰ اور ایگزیکٹو ۲۵۰ امریکی ڈالر ہے۔",
+    },
+  },
+  cancellation: {
+    links: [
+      ["NADRA cancellation requirements", "نادرا کی منسوخی کی شرائط", "https://www.nadra.gov.pk/identityDocument/certificates/cancellation?tab=cancellation"],
+      nadraFeeLink, pakIdLink,
+    ],
+    en: {
+      title: "Get an ID cancellation certificate",
+      summary: "Start here for cancellation after a death, or check NADRA’s separate rules for nationality surrender and other reasons.",
+      items: [
+        "For a death case, have the official death certificate and the deceased person’s NADRA ID details available.",
+        "Keep the original ID document if available. Ask NADRA which relative may apply and what proof it accepts for your circumstances.",
+      ],
+      steps: [
+        "Select ID Cancellation in PakID or ask for cancellation at a NADRA Registration Centre.",
+        "Choose the actual reason for cancellation and follow the case-specific evidence and verification instructions.",
+      ],
+      feeText: "For cancellation due to death, NADRA lists PKR 0 for CNIC/CRC and USD 0 for NICOP. POC and other reasons have separate fees.",
+    },
+    ur: {
+      title: "شناختی دستاویز کی منسوخی کا سرٹیفکیٹ",
+      summary: "وفات کے بعد شناختی دستاویز منسوخ کرنے کے لیے۔ شہریت چھوڑنے اور دیگر وجوہات کے لیے الگ سرکاری شرائط دیکھیں۔",
+      items: [
+        "وفات کی صورت میں سرکاری وفات کا سرٹیفکیٹ اور مرحوم کی نادرا شناختی تفصیلات تیار رکھیں۔",
+        "اصل شناختی دستاویز دستیاب ہو تو ساتھ رکھیں۔ نادرا سے پوچھیں کہ کون سا رشتہ دار درخواست دے سکتا ہے اور کون سا ثبوت درکار ہے۔",
+      ],
+      steps: [
+        "پاک آئی ڈی میں شناختی دستاویز کی منسوخی منتخب کریں یا نادرا سینٹر میں منسوخی کا پوچھیں۔",
+        "منسوخی کی اصل وجہ منتخب کریں اور اپنے کیس کے ثبوت اور تصدیق کی ہدایات دیکھیں۔",
+      ],
+      feeText: "وفات کی وجہ سے شناختی کارڈ یا ب فارم کی منسوخی کی فیس صفر روپے اور نائیکوپ کی صفر امریکی ڈالر ہے۔ پی او سی اور دیگر وجوہات کی فیس الگ ہے۔",
+    },
+  },
+};
+
+</script>
+<script>
+"use strict";
+
+const sources = {
+  requirements: "https://www.nadra.gov.pk/identityDocument/cnic",
+  fees: "https://www.nadra.gov.pk/feeStructure",
+  pakId: "https://www.nadra.gov.pk/pakIdentityFaqs",
+};
+
+const guides = {
+  ...additionalGuides,
+  ...nadraGuides,
+  first: {
+    normalFee: "0",
+    en: {
+      title: "Your first CNIC",
+      summary: "For Pakistani citizens aged 18 or older applying for their first CNIC.",
+      items: [
+        "Verified computerized birth certificate from your local authority, or a citizenship or naturalization certificate.",
+        "CNIC number of a parent or blood relative.",
+        "Biometric verification by a parent or blood relative, or an attested CNIC application form where NADRA permits it.",
+      ],
+      steps: [
+        "Visit a NADRA Registration Centre and ask staff for a first-time CNIC token.",
+        "If you start in PakID using a blood relative’s account, attend the centre with that relative to complete the application.",
+        "Follow the centre’s instructions for verification, payment if applicable, and collection or delivery.",
+      ],
+      note: "If you have no blood relative available, ask NADRA which witness and undertaking requirements apply to your case.",
+    },
+    ur: {
+      title: "پہلا شناختی کارڈ",
+      summary: "یہ رہنمائی ۱۸ سال یا اس سے زیادہ عمر کے پاکستانی شہریوں کے لیے ہے جو پہلی بار شناختی کارڈ بنوا رہے ہیں۔",
+      items: [
+        "مقامی ادارے سے تصدیق شدہ کمپیوٹرائزڈ پیدائش کا سرٹیفکیٹ، یا شہریت کا سرٹیفکیٹ۔",
+        "والدین میں سے کسی ایک یا خونی رشتہ دار کا شناختی کارڈ نمبر۔",
+        "والدین میں سے کسی ایک یا خونی رشتہ دار کی بائیومیٹرک تصدیق، یا نادرا کی اجازت کے مطابق شناختی کارڈ کے فارم کی تصدیق۔",
+      ],
+      steps: [
+        "نادرا رجسٹریشن سینٹر جائیں اور پہلی بار شناختی کارڈ بنوانے کا ٹوکن مانگیں۔",
+        "اگر خونی رشتہ دار کے پاک آئی ڈی اکاؤنٹ سے درخواست شروع کی ہے تو اسی رشتہ دار کے ساتھ سینٹر جائیں۔",
+        "تصدیق، اگر فیس لاگو ہو تو ادائیگی، اور کارڈ کی وصولی کے لیے سینٹر کی ہدایات پر عمل کریں۔",
+      ],
+      note: "اگر خونی رشتہ دار دستیاب نہیں ہے تو نادرا سے پوچھیں کہ آپ کے کیس میں کس گواہ اور اقرار نامے کی ضرورت ہے۔",
+    },
+  },
+  renew: {
+    normalFee: "400",
+    en: {
+      title: "Renew your CNIC",
+      summary: "For renewing an existing CNIC without changing your personal details.",
+      items: ["Have your existing CNIC number ready for NADRA."],
+      steps: [
+        "Select CNIC renewal in the official PakID app, or ask for a renewal token at a NADRA Registration Centre.",
+        "Follow NADRA’s instructions for your photograph, biometrics or a centre visit.",
+        "Check the fee for your card type and priority before paying.",
+      ],
+      note: "If the card is lost or your details have changed, check NADRA’s reprint or modification instructions.",
+    },
+    ur: {
+      title: "شناختی کارڈ کی تجدید",
+      summary: "یہ رہنمائی موجودہ شناختی کارڈ کی تجدید کے لیے ہے، جب ذاتی معلومات میں تبدیلی نہ ہو۔",
+      items: ["نادرا کو دینے کے لیے اپنے موجودہ شناختی کارڈ کا نمبر تیار رکھیں۔"],
+      steps: [
+        "آفیشل پاک آئی ڈی ایپ میں تجدید کا آپشن منتخب کریں، یا نادرا سینٹر میں تجدید کا ٹوکن مانگیں۔",
+        "تصویر، بائیومیٹرک تصدیق یا سینٹر جانے کے لیے نادرا کی ہدایات پر عمل کریں۔",
+        "ادائیگی سے پہلے اپنے کارڈ کی قسم اور ترجیح کے مطابق فیس دیکھیں۔",
+      ],
+      note: "کارڈ گم ہونے یا معلومات بدلنے کی صورت میں دوبارہ اجرا یا ترمیم کی ہدایات دیکھیں۔",
+    },
+  },
+};
+
+const labels = {
+  en: {
+    ready: "What to prepare", next: "Where to start and what to do", fees: "Fees",
+    tiers: ["Normal", "Urgent", "Executive"], listen: "Read checklist aloud",
+    date: "Fees checked 9 Nov 2026. Confirm the current amount with the official source before paying.",
+    requirements: "NADRA requirements", feeSource: "Official fees", pakId: "PakID FAQs",
+    empty: ["Your checklist will appear here", "Ask a question or choose a service to see what to prepare and where to apply."],
+    clarify: ["Which CNIC service do you need?", "Pehli dafa banwana hai, renew karwana hai, duplicate chahiye, ya details update karni hain?"],
+    pick: ["Which service should we start with?", "Choose one service to get its checklist."],
+    domicileLocation: ["Is your domicile for Multan district?", "Choose Multan for the local checklist. For a different district, confirm its requirements with your district office."],
+    outside: ["Check the guide for your location", "The domicile checklist covers Multan district. The business checklist covers sole proprietors in Punjab."],
+    unsupported: ["Choose a service for your checklist", "This prototype covers the services below. For other cases, check the relevant department’s official guidance."],
+    options: { first: "First CNIC", renew: "CNIC renewal", duplicate: "Lost or damaged CNIC", modify: "Update CNIC", domicile: "Domicile · Multan", passport: "Passport renewal", business: "Small business · Punjab" },
+    cardLabel: "CNIC type", cardOptions: ["Standard CNIC", "Smart NIC"],
+    passportLabel: "36-page e-passport validity", passportOptions: ["5 years", "10 years"],
+    noSpeech: "Reading aloud is unavailable for this language on this device.",
+  },
+  ur: {
+    ready: "درخواست سے پہلے تیاری", next: "کہاں جائیں اور کیا کریں", fees: "فیس",
+    tiers: ["نارمل", "ارجنٹ", "ایگزیکٹو"], listen: "چیک لسٹ سنیں",
+    date: "فیس ۹ نومبر ۲۰۲۶ کو چیک کی گئی۔ ادائیگی سے پہلے سرکاری ذرائع سے تازہ فیس دیکھیں۔",
+    requirements: "نادرا کی شرائط", feeSource: "آفیشل فیس", pakId: "پاک آئی ڈی کے سوالات",
+    empty: ["آپ کی چیک لسٹ یہاں آئے گی", "سوال پوچھیں یا کوئی سروس منتخب کریں۔"],
+    clarify: ["آپ کو شناختی کارڈ کی کون سی سروس چاہیے؟", "پہلی بار بنوانا ہے، تجدید کرانی ہے، دوبارہ اجرا چاہیے یا معلومات بدلنی ہیں؟"],
+    pick: ["آپ کو کون سی سروس چاہیے؟", "چیک لسٹ کے لیے ایک سروس منتخب کریں۔"],
+    domicileLocation: ["کیا آپ کو ضلع ملتان کا ڈومیسائل چاہیے؟", "ملتان کے لیے نیچے منتخب کریں۔ کسی اور ضلع کے لیے اپنے ضلعی دفتر سے شرائط معلوم کریں۔"],
+    outside: ["اپنے علاقے کی ہدایات دیکھیں", "ڈومیسائل کی چیک لسٹ ضلع ملتان اور کاروبار کی چیک لسٹ پنجاب میں ایک مالک والے کاروبار کے لیے ہے۔"],
+    unsupported: ["چیک لسٹ کے لیے سروس منتخب کریں", "یہ ابتدائی گائیڈ نیچے دی گئی سروسز کے لیے ہے۔ باقی صورتوں میں متعلقہ محکمے کی سرکاری ہدایات دیکھیں۔"],
+    options: { first: "پہلا شناختی کارڈ", renew: "شناختی کارڈ کی تجدید", duplicate: "شناختی کارڈ کا دوبارہ اجرا", modify: "شناختی کارڈ کی ترمیم", domicile: "ڈومیسائل · ملتان", passport: "پاسپورٹ کی تجدید", business: "چھوٹا کاروبار · پنجاب" },
+    cardLabel: "شناختی کارڈ کی قسم", cardOptions: ["عام شناختی کارڈ", "اسمارٹ شناختی کارڈ"],
+    passportLabel: "۳۶ صفحات والے ای پاسپورٹ کی مدت", passportOptions: ["۵ سال", "۱۰ سال"],
+    noSpeech: "اس ڈیوائس پر اس زبان میں چیک لسٹ سننے کی سہولت دستیاب نہیں۔",
+  },
+};
+
+const form = document.querySelector("#ask-form");
+const question = document.querySelector("#question");
+const result = document.querySelector("#result");
+const mic = document.querySelector("#mic");
+const voiceStatus = document.querySelector("#voice-status");
+const defaultVoiceStatus = voiceStatus.textContent;
+let service = "empty";
+let language = "en";
+const checkedItems = Object.fromEntries(Object.keys(guides).map((key) => [key, new Set()]));
+const feeSelection = { first: 0, renew: 0, duplicate: 0, modify: 0, passport: 0 };
+const emptyIcon = document.querySelector(".empty-icon").outerHTML;
+
+function classify(text) {
+  const value = text.toLowerCase().normalize("NFKC").replace(/[\u064b-\u065f\u0670]/gu, "");
+  const first = /\b(first(?:[ -]time)?|fresh|nay[aei]|n[ae]w|pehl[aeiy]|p[ae]hli)\b|نیا|نئے|پہل[یےا]/u.test(value);
+  const renew = /\b(renew(?:al|ing)?|expir\w*|miyad|mayad)\b|تجدید|میعاد|ایکسپائر|رینیو/u.test(value);
+  const identity = /\b(cnic|nadra|id[ -]?card|shanakhti|shanakht)\b|شناختی|شناخت|نادرا|سی این آئی سی/u.test(value);
+  const passport = /\b(passport|pasport)\b|پاسپورٹ|پاس پورٹ/u.test(value);
+  const domicile = /\b(domicile|domisile)\b|ڈومیسائل|ڈومیسایل/u.test(value);
+  const business = /\b(business|karobar|kaarobar|dukaan|dukan|sole propriet\w*|ntn)\b|کاروبار|دکان|این ٹی این/u.test(value);
+  const duplicate = /\b(lost|stolen|gum|g[ua]mshuda|duplicate|reprint|damaged|kharab|toot\w*|replace)\b|گم(?:\s|$)|گمشدہ|چوری|خراب|ٹوٹ|ڈپلیکیٹ|دوبارہ اجرا/u.test(value);
+  const modify = /\b(modif\w*|updat\w*|correct\w*|chang\w*|badal\w*|tabdeel\w*|durust\w*)\b|ترمیم|تبدیل|درست|بدل/u.test(value);
+  const cnicField = /\b(address|naam|name|date of birth|dob|marital status|pata)\b|نام|پت[ہے]|تاریخ پیدائش|ازدواجی/u.test(value);
+  const crc = /\b(b[\s-]?form|crc|child registration certificate)\b|ب[یے]?\s*فارم|سی آر سی/u.test(value);
+  const frc = /\b(frc|family (registration )?certificate|family tree)\b|ایف آر سی|فیملی (رجسٹریشن|سرٹیفکیٹ)|خاندانی (سرٹیفکیٹ|ریکارڈ)/u.test(value);
+  const nicop = /\b(nicop|snicop)\b|نائیکوپ|نائکوپ|نائیکاپ/u.test(value);
+  const poc = /\b(poc|pakistan origin card)\b|پی او سی|پاکستان اوریجن کارڈ/u.test(value);
+  const cancel = /\b(cancel\w*|mansookh\w*)\b|منسوخ|منسوخی/u.test(value);
+  const death = /\b(death|died|deceased|wafaat|wafat|inteqal|intiqal)\b|وفات|انتقال|مرحوم/u.test(value);
+  const outsidePunjab = /\b(sindh|karachi|hyderabad|balochistan|quetta|kpk|peshawar|islamabad|ajk|kashmir|gilgit)\b|سندھ|کراچی|بلوچستان|کوئٹہ|پشاور|اسلام آباد|کشمیر|گلگت/u.test(value);
+  const otherDistrict = /\b(lahore|rawalpindi|faisalabad|bahawalpur|sialkot|khanewal|lodhran|vehari|muzaffargarh|dg khan|gujranwala|sargodha)\b|لاہور|راولپنڈی|فیصل آباد|بہاولپور|سیالکوٹ|خانیوال|وہاڑی|مظفر گڑھ/u.test(value);
+  if ([passport, domicile, business].filter(Boolean).length > 1) return "pick";
+  if (domicile) {
+    if (duplicate || modify || cancel) return "unsupported";
+    if (outsidePunjab || otherDistrict) return "outside";
+    return /\bmultan\b|ملتان/u.test(value) ? "domicile" : "domicileLocation";
+  }
+  if (business) {
+    if (cancel) return "unsupported";
+    if (outsidePunjab) return "outside";
+    if (/\b(partnership|incorporat\w*|limited company|secp|pvt|aop)\b|شراکت داری|کمپنی/u.test(value)) return "unsupported";
+    return "business";
+  }
+  if (passport && !(crc && !renew && !duplicate && !modify)) {
+    if (duplicate || modify || cancel || /\b(minor|child|kid|overseas|abroad)\b|بچے|بیرون ملک/u.test(value)) return "unsupported";
+    return first && !renew ? "unsupported" : "passport";
+  }
+  if (cancel && (identity || crc || nicop || poc || death || /cancellation certificate|منسوخی کا سرٹیفکیٹ/u.test(value))) return "cancellation";
+  if ([crc, frc, nicop, poc].filter(Boolean).length > 1) return "pick";
+  if (crc) return duplicate || modify || renew ? "unsupported" : "crc";
+  if (frc) return cancel ? "unsupported" : "frc";
+  if (nicop || poc) return modify || duplicate ? "unsupported" : nicop ? "nicop" : "poc";
+  if (/\b(licen[cs]e|juvenile card)\b|لائسنس|جووینائل/u.test(value)) return "unsupported";
+  if (duplicate && (identity || service === "clarify")) return modify ? "clarify" : "duplicate";
+  if (modify && (identity || cnicField || service === "clarify")) return "modify";
+  if (first && renew) return "clarify";
+  if (renew && (identity || service === "clarify")) return "renew";
+  if (first && (identity || service === "clarify")) return "first";
+  return identity ? "clarify" : "unsupported";
+}
+
+function renderFees(guide, copy, content) {
+  if (content.feeText) return '<p class="fee-note">' + content.feeText + '</p>';
+  const isPassport = service === "passport";
+  const options = isPassport ? copy.passportOptions : copy.cardOptions;
+  const label = isPassport ? copy.passportLabel : copy.cardLabel;
+  const selected = feeSelection[service];
+  const prices = isPassport
+    ? [["9,000", "15,000"], ["13,500", "22,500"]][selected]
+    : [[guide.normalFee, "1,150", "2,150"], ["750", "1,500", "2,500"]][selected];
+  const choices = options.map((option, index) =>
+    '<option value="' + index + '"' + (selected === index ? ' selected' : '') + '>' + option + '</option>'
+  ).join("");
+  return `
+    <div class="fee-controls">
+      <label for="fee-option">${label}</label>
+      <select id="fee-option">${choices}</select>
+    </div>
+    <dl class="fees" aria-live="polite">${prices.map((fee, index) =>
+      '<div><dt>' + copy.tiers[index] + '</dt><dd><bdi>PKR ' + fee + '</bdi></dd></div>'
+    ).join("")}</dl>`;
+}
+
+function render() {
+  const copy = labels[language];
+  const guide = guides[service];
+  const direction = language === "ur" ? "rtl" : "ltr";
+  const attributes = 'lang="' + language + '" dir="' + direction + '"';
+  document.querySelectorAll(".quick [data-service]").forEach((button) => {
+    button.setAttribute("aria-pressed", String(button.dataset.service === service));
+  });
+
+  if (!guide) {
+    const [title, description] = copy[service];
+    const choices = {
+      empty: [], clarify: ["first", "renew", "duplicate", "modify"], domicileLocation: ["domicile"],
+      outside: [], pick: [], unsupported: [],
+    }[service];
+    const buttons = choices.map((key) =>
+      '<button type="button" data-service="' + key + '">' + copy.options[key] + '</button>'
+    ).join("");
+    result.innerHTML = '<div class="empty" ' + attributes + '>' + emptyIcon +
+      '<h2 id="output-heading" tabindex="-1">' + title + '</h2><p>' + description + '</p>' +
+      (buttons ? '<div class="choices">' + buttons + '</div>' : '') + '</div>';
+    return;
+  }
+
+  const content = guide[language];
+  const items = content.items.map((item, index) =>
+    '<li><label><input type="checkbox" data-item="' + index + '"' +
+    (checkedItems[service].has(index) ? ' checked' : '') + '><span>' + item + '</span></label></li>'
+  ).join("");
+  const links = guide.links
+    ? guide.links.map(([english, urdu, url]) => [language === "ur" ? urdu : english, url])
+    : [[copy.requirements, sources.requirements], [copy.feeSource, sources.fees], [copy.pakId, sources.pakId]];
+  result.innerHTML = `
+    <div class="guide" ${attributes}>
+      <h2 id="output-heading" tabindex="-1">${content.title}</h2>
+      <p>${content.summary}</p>
+      <button type="button" class="read-aloud" id="read-guide">${copy.listen}</button>
+      <span id="read-status" class="read-status" role="status"></span>
+      <h3>${copy.ready}</h3>
+      <ul>${items}</ul>
+      <h3>${copy.next}</h3>
+      <ol class="steps">${content.steps.map((step) => '<li>' + step + '</li>').join("")}</ol>
+      ${content.note ? '<p>' + content.note + '</p>' : ''}
+      <h3>${copy.fees}</h3>
+      <div id="fee-details">${renderFees(guide, copy, content)}</div>
+      ${content.feeNote ? '<p>' + content.feeNote + '</p>' : ''}
+      ${service !== "business" ? '<p>' + copy.date + '</p>' : ''}
+      <div class="links">${links.map(([label, url]) =>
+        '<a href="' + url + '" target="_blank" rel="noopener">' + label + '</a>'
+      ).join("")}</div>
+    </div>`;
+}
+
+function show(nextService) {
+  window.speechSynthesis?.cancel();
+  service = nextService;
+  render();
+  document.querySelector("#output-heading").focus();
+}
+
+form.addEventListener("submit", (event) => {
+  event.preventDefault();
+  const text = question.value.trim();
+  if (!text) {
+    voiceStatus.textContent = "Type a question or choose a service below.";
+    question.focus();
+    return;
+  }
+  if (/[0-9۰-۹٠-٩](?:[\s-]*[0-9۰-۹٠-٩]){12}/u.test(text)) {
+    voiceStatus.textContent = "Please remove the CNIC number and ask again.";
+    question.focus();
+    return;
+  }
+  voiceStatus.textContent = defaultVoiceStatus;
+  show(classify(text));
+});
+
+document.addEventListener("click", (event) => {
+  const selected = event.target.closest("[data-service]");
+  if (selected) show(selected.dataset.service);
+
+  const toggle = event.target.closest("[data-lang]");
+  if (toggle) {
+    window.speechSynthesis?.cancel();
+    language = toggle.dataset.lang;
+    document.querySelectorAll("[data-lang]").forEach((button) => {
+      button.setAttribute("aria-pressed", String(button === toggle));
+    });
+    render();
+  }
+});
+
+result.addEventListener("click", (event) => {
+  if (event.target.id !== "read-guide") return;
+  const synthesis = window.speechSynthesis;
+  const voice = synthesis?.getVoices().find((candidate) => candidate.lang.toLowerCase().startsWith(language));
+  const status = document.querySelector("#read-status");
+  if (!voice) {
+    status.textContent = labels[language].noSpeech;
+    return;
+  }
+
+  const content = guides[service][language];
+  const fees = [...document.querySelectorAll("#fee-details dd")].map((fee) =>
+    fee.previousElementSibling.textContent + " " + fee.textContent
+  );
+  const text = [
+    content.title, labels[language].ready, ...content.items,
+    labels[language].next, ...content.steps, content.note,
+    labels[language].fees, content.feeText, ...fees, content.feeNote,
+  ].filter(Boolean).join(". ");
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.voice = voice;
+  utterance.lang = voice.lang;
+  utterance.rate = 0.88;
+  synthesis.cancel();
+  status.textContent = "";
+  utterance.onerror = (error) => {
+    if (!["canceled", "interrupted"].includes(error.error)) status.textContent = labels[language].noSpeech;
+  };
+  synthesis.speak(utterance);
+});
+
+result.addEventListener("change", (event) => {
+  if (event.target.id === "fee-option") {
+    feeSelection[service] = Number(event.target.value);
+    const guide = guides[service];
+    document.querySelector("#fee-details").innerHTML = renderFees(guide, labels[language], guide[language]);
+    document.querySelector("#fee-option").focus();
+    return;
+  }
+  if (!event.target.matches("[data-item]")) return;
+  const index = Number(event.target.dataset.item);
+  if (event.target.checked) checkedItems[service].add(index);
+  else checkedItems[service].delete(index);
+});
+
+let recognition;
+mic.addEventListener("click", () => {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    voiceStatus.textContent = "Voice is unavailable in this browser. Type your question or use your phone keyboard’s mic.";
+    question.focus();
+    return;
+  }
+  if (recognition) {
+    recognition.abort();
+    voiceStatus.textContent = defaultVoiceStatus;
+    return;
+  }
+
+  recognition = new SpeechRecognition();
+  recognition.lang = "ur-PK";
+  recognition.onresult = (event) => {
+    question.value = event.results[0][0].transcript.slice(0, question.maxLength);
+    voiceStatus.textContent = "Check the transcript, then select Get my checklist.";
+    question.focus();
+  };
+  recognition.onerror = (event) => {
+    if (event.error === "aborted") return;
+    voiceStatus.textContent = "Couldn’t capture Urdu speech. Try typing or use your keyboard’s mic.";
+  };
+  recognition.onend = () => {
+    if (voiceStatus.textContent === "Listening in Urdu…") voiceStatus.textContent = defaultVoiceStatus;
+    mic.setAttribute("aria-pressed", "false");
+    recognition = undefined;
+  };
+
+  try {
+    recognition.start();
+    mic.setAttribute("aria-pressed", "true");
+    voiceStatus.textContent = "Listening in Urdu…";
+  } catch {
+    recognition = undefined;
+    voiceStatus.textContent = "Voice couldn’t start. You can still type your question.";
+  }
+});
+
+</script>
+</body>
+</html>
