@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: kaghaz-saathi
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    healthCheckPath: /
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
