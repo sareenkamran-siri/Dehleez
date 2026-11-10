@@ -1121,6 +1121,7 @@ function renderFees(guide, copy, content) {
 }
 
 function render() {
+  result.querySelector("#read-audio")?.pause();
   const copy = labels[language];
   const guide = guides[service];
   const direction = language === "ur" ? "rtl" : "ltr";
@@ -1161,6 +1162,7 @@ function render() {
       ${Object.hasOwn(domicileAreas, service) ? '<div class="choices"><button type="button" data-service="domicileLocation">' + (language === "ur" ? "علاقہ بدلیں" : "Change location") + '</button></div>' : ''}
       <button type="button" class="read-aloud" id="read-guide">${copy.listen}</button>
       <span id="read-status" class="read-status" role="status"></span>
+      ${language === "ur" ? '<audio id="read-audio" controls hidden aria-label="' + copy.listen + '"></audio>' : ''}
       <h3>${copy.ready}</h3>
       <ul>${items}</ul>
       <h3>${copy.next}</h3>
@@ -1243,26 +1245,47 @@ document.addEventListener("click", (event) => {
   }
 });
 
-result.addEventListener("click", (event) => {
+result.addEventListener("click", async (event) => {
   if (event.target.id !== "read-guide") return;
   const synthesis = window.speechSynthesis;
-  const voice = synthesis?.getVoices().find((candidate) => candidate.lang.toLowerCase().startsWith(language));
   const status = document.querySelector("#read-status");
-  if (!voice) {
-    status.textContent = labels[language].noSpeech;
-    return;
-  }
 
   const content = guides[service][language];
   const fees = [...document.querySelectorAll("#fee-details dd")].map((fee) =>
     fee.previousElementSibling.textContent + " " + fee.textContent
   );
-  const text = [
+  const sections = [
     content.title, labels[language].ready, ...content.items,
     labels[language].next, ...content.steps, content.note,
     labels[language].fees, content.feeText, ...fees, content.feeNote,
-  ].filter(Boolean).join(". ");
-  const utterance = new SpeechSynthesisUtterance(text);
+  ].filter(Boolean);
+  if (language === "ur") {
+    const player = result.querySelector("#read-audio");
+    const copy = labels.ur;
+    const selectedFee = feeSelection[service];
+    synthesis?.cancel();
+    player.pause();
+    status.textContent = "";
+    try {
+      const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(sections.join("\n")));
+      if (!player.isConnected || selectedFee !== feeSelection[service]) return;
+      const id = Array.from(new Uint8Array(digest).slice(0, 8), (byte) => byte.toString(16).padStart(2, "0")).join("");
+      player.onerror = () => { status.textContent = copy.noSpeech; player.hidden = true; };
+      player.src = "https://kaghaz-saathi.vercel.app/static/voice/ur-" + id + ".mp3";
+      player.hidden = false;
+      player.play().catch(() => {});
+    } catch {
+      status.textContent = copy.noSpeech;
+    }
+    return;
+  }
+
+  const voice = synthesis?.getVoices().find((candidate) => candidate.lang.toLowerCase().startsWith(language));
+  if (!voice) {
+    status.textContent = labels[language].noSpeech;
+    return;
+  }
+  const utterance = new SpeechSynthesisUtterance(sections.join(". "));
   utterance.voice = voice;
   utterance.lang = voice.lang;
   utterance.rate = 0.88;
@@ -1276,6 +1299,12 @@ result.addEventListener("click", (event) => {
 
 result.addEventListener("change", (event) => {
   if (event.target.id === "fee-option") {
+    const player = result.querySelector("#read-audio");
+    if (player) {
+      player.pause();
+      player.removeAttribute("src");
+      player.hidden = true;
+    }
     feeSelection[service] = Number(event.target.value);
     const guide = guides[service];
     document.querySelector("#fee-details").innerHTML = renderFees(guide, labels[language], guide[language]);
