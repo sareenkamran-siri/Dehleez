@@ -173,12 +173,12 @@ textarea::placeholder { color: #526b5b; }
         <label for="question">Type or speak your question</label>
         <div class="field">
           <textarea id="question" rows="2" dir="auto" enterkeyhint="go" aria-describedby="question-error voice-status" placeholder="Mujhe naya CNIC banwana hai…"></textarea>
-          <button id="mic" type="button" class="mic" aria-label="Record your question" aria-pressed="false" title="Record your question">
+          <button id="mic" type="button" class="mic" aria-label="Dictate your question" aria-pressed="false" title="Dictate your question">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11v1a7 7 0 0 0 14 0v-1M12 19v3m-3 0h6"/></svg>
           </button>
         </div>
         <p class="question-error" id="question-error" role="alert" dir="auto"></p>
-        <p class="hint" id="voice-status" role="status">Tap the mic to record. Your recording and submitted questions are processed by Google Gemini. Leave out ID numbers and personal details.</p>
+        <p class="hint" id="voice-status" role="status">Tap the mic and start speaking. Speech is processed by your browser or Google Gemini. Leave out ID numbers and personal details.</p>
         <button class="primary" type="submit" disabled>Get my checklist <span aria-hidden="true">→</span></button>
         <p class="hint" id="match-status" role="status" dir="auto"></p>
         <p class="hint" id="script-help">Enable JavaScript to use the checklist finder.</p>
@@ -912,6 +912,7 @@ question.addEventListener("input", () => {
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
+  if (activeVoice) return;
   cancelMatch();
   const text = question.value.normalize("NFKC").trim();
   const error = !text ? "empty"
@@ -1108,55 +1109,6 @@ result.addEventListener("change", (event) => {
   else checkedItems[service].delete(index);
 });
 
-let recognition;
-let recorder;
-
-function useTranscript(transcript) {
-  cancelMatch();
-  question.value = transcript;
-  setInputError();
-  voiceStatus.textContent = "Check the transcript, then select Get my checklist.";
-  question.focus();
-}
-
-function startBrowserRecognition() {
-  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRecognition) {
-    voiceStatus.textContent = "Voice is unavailable in this browser. Type your question or use your phone keyboard’s mic.";
-    question.focus();
-    return;
-  }
-  if (recognition) {
-    recognition.abort();
-    voiceStatus.textContent = defaultVoiceStatus;
-    return;
-  }
-
-  recognition = new SpeechRecognition();
-  recognition.lang = "ur-PK";
-  recognition.onresult = (event) => {
-    useTranscript(event.results[0][0].transcript);
-  };
-  recognition.onerror = (event) => {
-    if (event.error === "aborted") return;
-    voiceStatus.textContent = "Couldn’t capture Urdu speech. Try typing or use your keyboard’s mic.";
-  };
-  recognition.onend = () => {
-    if (voiceStatus.textContent === "Listening in Urdu…") voiceStatus.textContent = defaultVoiceStatus;
-    mic.setAttribute("aria-pressed", "false");
-    recognition = undefined;
-  };
-
-  try {
-    recognition.start();
-    mic.setAttribute("aria-pressed", "true");
-    voiceStatus.textContent = "Listening in Urdu…";
-  } catch {
-    recognition = undefined;
-    voiceStatus.textContent = "Voice couldn’t start. You can still type your question.";
-  }
-}
-
 async function toWav(chunks) {
   const AudioContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
   const audio = await new AudioContext(1, 1, 16000).decodeAudioData(await new Blob(chunks).arrayBuffer());
@@ -1183,76 +1135,232 @@ async function toWav(chunks) {
   return wav;
 }
 
-mic.addEventListener("click", async () => {
-  if (recorder?.state === "recording") {
-    recorder.stop();
-    return;
+let activeVoice;
+const voiceLimitMs = 12000;
+const voiceChunkMs = 4000;
+
+function updateDictation(session, transcript) {
+  if (activeVoice !== session || !transcript) return;
+  question.value = transcript;
+  session.hasText = true;
+  setInputError();
+}
+
+function releaseMicrophone(session) {
+  session.stream?.getTracks().forEach((track) => track.stop());
+  session.stream = undefined;
+}
+
+function finishDictation(session, message) {
+  if (activeVoice !== session) return;
+  activeVoice = undefined;
+  clearTimeout(session.timer);
+  session.controller.abort();
+  releaseMicrophone(session);
+  mic.disabled = false;
+  mic.setAttribute("aria-pressed", "false");
+  mic.setAttribute("aria-label", "Dictate your question");
+  form.querySelector('button[type="submit"]').disabled = false;
+  voiceStatus.textContent = message;
+}
+
+function cancelDictation() {
+  const session = activeVoice;
+  if (!session) return;
+  finishDictation(session, defaultVoiceStatus);
+  session.recognition?.abort();
+  if (session.recorder?.state === "recording") session.recorder.stop();
+}
+
+function setDictationState(listening, message) {
+  mic.disabled = !listening;
+  mic.setAttribute("aria-pressed", String(listening));
+  mic.setAttribute("aria-label", listening ? "Stop dictation" : "Dictate your question");
+  voiceStatus.textContent = message;
+}
+
+function stopDictation(session) {
+  if (session.stopping) return;
+  session.stopping = true;
+  clearTimeout(session.timer);
+  setDictationState(false, "Finishing your transcript…");
+  session.stop();
+}
+
+function endDictation(session) {
+  finishDictation(session, session.hasText
+    ? "Check the transcript, then select Get my checklist."
+    : "No clear speech heard. Try speaking again or use your keyboard’s mic.");
+}
+
+function startBrowserRecognition(session, SpeechRecognition) {
+  const recognition = new SpeechRecognition();
+  session.recognition = recognition;
+  recognition.lang = "ur-PK";
+  recognition.interimResults = true;
+  recognition.continuous = true;
+  let recognitionError;
+  recognition.onresult = (event) => {
+    const transcript = Array.from(event.results, (result) => result[0].transcript.trim()).filter(Boolean).join(" ");
+    updateDictation(session, transcript);
+  };
+  recognition.onerror = (event) => { recognitionError = event.error; };
+  recognition.onend = () => {
+    if (activeVoice !== session) return;
+    clearTimeout(session.timer);
+    session.recognition = undefined;
+    if (!session.stopping && !session.hasText && recognitionError !== "no-speech") {
+      startRecordedDictation(session);
+    } else {
+      endDictation(session);
+    }
+  };
+  session.stop = () => {
+    try {
+      recognition.stop();
+      session.timer = setTimeout(() => {
+        endDictation(session);
+        recognition.abort();
+      }, 2500);
+    } catch {
+      endDictation(session);
+    }
+  };
+  try {
+    recognition.start();
+    setDictationState(true, "Listening in Urdu. Text appears as you speak. Tap the mic to stop.");
+    session.timer = setTimeout(() => stopDictation(session), voiceLimitMs);
+  } catch {
+    session.recognition = undefined;
+    startRecordedDictation(session);
   }
+}
+
+async function transcribeChunk(chunks, signal) {
+  const controller = new AbortController();
+  const abort = () => controller.abort();
+  signal.addEventListener("abort", abort, { once: true });
+  const timeout = setTimeout(abort, 18000);
+  try {
+    const response = await fetch("/voice/transcribe", {
+      method: "POST",
+      headers: { "Content-Type": "audio/wav" },
+      body: await toWav(chunks),
+      signal: controller.signal,
+    });
+    const data = await response.json();
+    if (response.ok) return data.transcript || "";
+    if (data.error === "no_speech") return "";
+    throw new Error(data.error || "unavailable");
+  } finally {
+    signal.removeEventListener("abort", abort);
+    clearTimeout(timeout);
+  }
+}
+
+async function startRecordedDictation(session) {
   if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder ||
       !(window.OfflineAudioContext || window.webkitOfflineAudioContext)) {
-    startBrowserRecognition();
+    finishDictation(session, "Dictation is unavailable here. Try your keyboard’s mic or type your question.");
     return;
   }
-  mic.disabled = true;
-  voiceStatus.textContent = "Waiting for microphone permission…";
+  setDictationState(false, "Waiting for microphone access…");
   let stream;
   try {
     stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (error) {
+    finishDictation(session, error.name === "NotAllowedError"
+      ? "Microphone access is blocked. Allow it in browser settings or use your keyboard’s mic."
+      : "Couldn’t start the microphone. Try your keyboard’s mic or type your question.");
+    return;
+  }
+  if (activeVoice !== session) {
+    stream.getTracks().forEach((track) => track.stop());
+    return;
+  }
+  session.stream = stream;
+  const chunks = [];
+  const pending = [];
+  let segmentCount = 0;
+  let failed = false;
+
+  async function finishRecording() {
+    clearTimeout(session.timer);
+    releaseMicrophone(session);
+    setDictationState(false, "Finishing your transcript…");
+    await Promise.all(pending);
+    if (activeVoice !== session) return;
+    if (failed) finishDictation(session, session.hasText
+      ? "Some speech couldn’t be transcribed. Check the text before submitting."
+      : "Couldn’t transcribe the recording. Try again or use your keyboard’s mic.");
+    else endDictation(session);
+  }
+
+  function recordChunk() {
     const recording = new MediaRecorder(stream);
-    const chunks = [];
-    const originalQuestion = question.value;
+    const samples = [];
+    session.recorder = recording;
     recording.ondataavailable = (event) => {
-      if (event.data.size) chunks.push(event.data);
+      if (event.data.size) samples.push(event.data);
+    };
+    recording.onerror = () => {
+      failed = true;
+      session.stopping = true;
+    };
+    recording.onstop = () => {
+      if (activeVoice !== session) return;
+      clearTimeout(session.timer);
+      if (samples.length) {
+        const index = chunks.length;
+        chunks.push(undefined);
+        pending.push(transcribeChunk(samples, session.controller.signal).then((text) => {
+          chunks[index] = text;
+        }).catch(() => {
+          chunks[index] = "";
+          failed = true;
+        }).then(() => {
+          const next = chunks.indexOf(undefined);
+          updateDictation(session, chunks.slice(0, next < 0 ? chunks.length : next).filter(Boolean).join(" "));
+        }));
+      }
+      if (session.stopping || segmentCount >= voiceLimitMs / voiceChunkMs) finishRecording();
+      else startNextChunk();
+    };
+    session.stop = () => {
+      if (recording.state === "recording") recording.stop();
     };
     recording.start();
-    recorder = recording;
-    const timer = setTimeout(() => {
-      if (recording.state === "recording") recording.stop();
-    }, 12000);
-    let recordingFailed = false;
-    recording.onerror = () => { recordingFailed = true; };
-    recording.onstop = async () => {
-      clearTimeout(timer);
-      stream.getTracks().forEach((track) => track.stop());
-      recorder = undefined;
-      mic.setAttribute("aria-pressed", "false");
-      mic.setAttribute("aria-label", "Record your question");
-      mic.disabled = true;
-      voiceStatus.textContent = "Turning your recording into text…";
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 18000);
-      try {
-        if (recordingFailed || !chunks.length) throw new Error();
-        const response = await fetch("/voice/transcribe", {
-          method: "POST",
-          headers: { "Content-Type": "audio/wav" },
-          body: await toWav(chunks),
-          signal: controller.signal,
-        });
-        const data = await response.json();
-        if (response.ok && data.transcript && question.value === originalQuestion) useTranscript(data.transcript);
-        else if (response.ok) voiceStatus.textContent = defaultVoiceStatus;
-        else if (data.error === "no_speech") voiceStatus.textContent = "No clear speech heard. Try speaking again.";
-        else if (data.error === "question") voiceStatus.textContent = "Keep the question short and leave out personal details.";
-        else throw new Error();
-      } catch {
-        voiceStatus.textContent = "Couldn’t transcribe the recording. Try again or use your keyboard’s mic.";
-      } finally {
-        clearTimeout(timeout);
-        mic.disabled = false;
-      }
-    };
-    mic.setAttribute("aria-pressed", "true");
-    mic.setAttribute("aria-label", "Stop recording");
-    mic.disabled = false;
-    voiceStatus.textContent = "Recording for up to 12 seconds. Tap the mic again to finish.";
-  } catch (error) {
-    stream?.getTracks().forEach((track) => track.stop());
-    mic.disabled = false;
-    voiceStatus.textContent = error.name === "NotAllowedError"
-      ? "Microphone access is blocked. Allow it in your browser’s site settings, or use your keyboard’s mic."
-      : "Couldn’t start the microphone. Try your keyboard’s mic or type your question.";
+    segmentCount++;
+    session.timer = setTimeout(session.stop, voiceChunkMs);
   }
+
+  function startNextChunk() {
+    try {
+      recordChunk();
+    } catch {
+      failed = true;
+      finishRecording();
+    }
+  }
+
+  setDictationState(true, "Speak now. Text appears every few seconds. Tap the mic to stop.");
+  startNextChunk();
+}
+
+question.addEventListener("input", cancelDictation);
+window.addEventListener("pagehide", cancelDictation);
+mic.addEventListener("click", () => {
+  if (activeVoice) {
+    stopDictation(activeVoice);
+    return;
+  }
+  cancelMatch();
+  const session = { controller: new AbortController() };
+  activeVoice = session;
+  form.querySelector('button[type="submit"]').disabled = true;
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SpeechRecognition) startBrowserRecognition(session, SpeechRecognition);
+  else startRecordedDictation(session);
 });
 
 form.querySelector('button[type="submit"]').disabled = false;
