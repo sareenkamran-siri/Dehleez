@@ -188,9 +188,10 @@ textarea::placeholder { color: #526b5b; }
         <div class="choices">
           <button type="button" data-service="first" aria-pressed="false">First CNIC</button>
           <button type="button" data-service="renew" aria-pressed="false">CNIC renewal</button>
-          <button type="button" data-service="domicile" aria-pressed="false">Domicile · Multan</button>
+          <button type="button" data-service="domicileLocation" aria-pressed="false">Domicile</button>
+          <button type="button" data-service="passportFirst" aria-pressed="false">First passport</button>
           <button type="button" data-service="passport" aria-pressed="false">Passport renewal</button>
-          <button type="button" data-service="business" aria-pressed="false">Small business · Punjab</button>
+          <button type="button" data-service="business" aria-pressed="false">Small business</button>
         </div>
         <details class="more-services">
           <summary>More NADRA services</summary>
@@ -596,8 +597,336 @@ const sources = {
   pakId: "https://www.nadra.gov.pk/pakIdentityFaqs",
 };
 
+const regionalDomicileGuides = {
+  "domicilePunjab": {
+    "links": [
+      [
+        "e-Khidmat domicile checklist",
+        "ای خدمت ڈومیسائل کی فہرست",
+        "https://ekhidmat.punjab.gov.pk/services/e-khidmat-marakaz/domicile-certificate"
+      ]
+    ],
+    "en": {
+      "title": "Apply for a domicile in Punjab",
+      "summary": "For a first domicile certificate. Confirm the details for your district.",
+      "items": [
+        "Form P and the Assistant Commissioner verification form.",
+        "Applicable CNIC or birth record, proof of residence, and recent passport-size photos.",
+        "Check whether your district requires an affidavit. The e-Khidmat page lists an exception for Faisalabad."
+      ],
+      "steps": [
+        "Start with e-Khidmat for your district and follow its payment and collection instructions."
+      ],
+      "feeText": "Check district-specific charges and payment instructions on the official page."
+    },
+    "ur": {
+      "title": "پنجاب میں ڈومیسائل بنوائیں",
+      "summary": "پہلی بار ڈومیسائل بنوانے کے لیے۔ اپنے ضلع کی تفصیلات کی تصدیق کریں۔",
+      "items": [
+        "فارم پی اور اسسٹنٹ کمشنر کا تصدیقی فارم۔",
+        "متعلقہ شناختی کارڈ یا پیدائشی ریکارڈ، رہائش کا ثبوت اور پاسپورٹ سائز کی تازہ تصاویر۔",
+        "اپنے ضلع میں حلف نامے کی شرط دیکھیں۔ ای خدمت کے صفحے پر فیصل آباد کی استثنا درج ہے۔"
+      ],
+      "steps": [
+        "اپنے ضلع کے ای خدمت مرکز سے شروع کریں اور ادائیگی اور وصولی کی ہدایات پر عمل کریں۔"
+      ],
+      "feeText": "اپنے ضلع کی فیس اور ادائیگی کی ہدایات سرکاری صفحے پر دیکھیں۔"
+    }
+  },
+  "domicileSindh": {
+    "links": [
+      [
+        "Sindh domicile and PRC portal",
+        "سندھ ڈومیسائل اور پی آر سی پورٹل",
+        "https://www.sindhdomicileportal.gos.pk/services"
+      ]
+    ],
+    "en": {
+      "title": "Apply for a domicile in Sindh",
+      "summary": "For a first domicile certificate. Confirm the details for your district.",
+      "items": [
+        "Have your identity documents and a recent photo ready.",
+        "Check which residence and education records your district requires."
+      ],
+      "steps": [
+        "Check online eligibility for your district on the official portal before applying.",
+        "If your district is not listed for online applications, contact its Deputy Commissioner’s domicile office."
+      ],
+      "feeText": "Confirm the domicile fee with the portal or the relevant district office before paying."
+    },
+    "ur": {
+      "title": "سندھ میں ڈومیسائل بنوائیں",
+      "summary": "پہلی بار ڈومیسائل بنوانے کے لیے۔ اپنے ضلع کی تفصیلات کی تصدیق کریں۔",
+      "items": [
+        "شناختی دستاویزات اور تازہ تصویر تیار رکھیں۔",
+        "اپنے ضلع سے رہائشی اور تعلیمی دستاویزات کی فہرست معلوم کریں۔"
+      ],
+      "steps": [
+        "درخواست سے پہلے سرکاری پورٹل پر اپنے ضلع کی آن لائن اہلیت دیکھیں۔",
+        "اگر آن لائن فہرست میں آپ کا ضلع نہیں ہے تو متعلقہ ڈپٹی کمشنر کے ڈومیسائل دفتر سے رابطہ کریں۔"
+      ],
+      "feeText": "ادائیگی سے پہلے پورٹل یا متعلقہ ضلعی دفتر سے ڈومیسائل کی فیس معلوم کریں۔"
+    }
+  },
+  "domicileKP": {
+    "links": [
+      [
+        "KP Citizens Facilitation Portal",
+        "خیبر پختونخوا شہری سہولت پورٹل",
+        "https://cfc.kp.gov.pk/"
+      ]
+    ],
+    "en": {
+      "title": "Apply for a domicile in Khyber Pakhtunkhwa",
+      "summary": "For a first domicile certificate. Confirm the details for your district.",
+      "items": [
+        "Check your district’s list of identity and residence documents in the official service.",
+        "Keep the application tracking ID after submission."
+      ],
+      "steps": [
+        "Apply through the official portal or the citizen information centre at your district DC office.",
+        "Track verification and follow your district’s collection instructions."
+      ],
+      "feeText": "Confirm the payment amount and method for your district through the official service."
+    },
+    "ur": {
+      "title": "خیبر پختونخوا میں ڈومیسائل بنوائیں",
+      "summary": "پہلی بار ڈومیسائل بنوانے کے لیے۔ اپنے ضلع کی تفصیلات کی تصدیق کریں۔",
+      "items": [
+        "سرکاری سروس میں اپنے ضلع کی شناختی اور رہائشی دستاویزات کی فہرست دیکھیں۔",
+        "درخواست جمع کرنے کے بعد ٹریکنگ نمبر محفوظ رکھیں۔"
+      ],
+      "steps": [
+        "سرکاری پورٹل یا اپنے ضلع کے ڈی سی دفتر میں شہری معلومات مرکز سے درخواست دیں۔",
+        "تصدیق کی پیش رفت دیکھیں اور وصولی کے لیے ضلعی ہدایات پر عمل کریں۔"
+      ],
+      "feeText": "سرکاری سروس سے اپنے ضلع کی فیس اور ادائیگی کا طریقہ معلوم کریں۔"
+    }
+  },
+  "domicileBalochistan": {
+    "links": [
+      [
+        "Balochistan Home Department",
+        "محکمہ داخلہ بلوچستان",
+        "https://chte.balochistan.gov.pk/"
+      ]
+    ],
+    "en": {
+      "title": "Apply for a domicile in Balochistan",
+      "summary": "For a first domicile certificate. Confirm the details for your district.",
+      "items": [
+        "Ask which certificate the receiving organization requires, since local and domicile certificates are separate services.",
+        "Ask for your district’s current identity, residence, and form requirements."
+      ],
+      "steps": [
+        "Start with your district Deputy Commissioner’s office.",
+        "Ask which application channel is available for your district and certificate."
+      ],
+      "feeText": "Confirm the current fee and payment channel with the issuing office."
+    },
+    "ur": {
+      "title": "بلوچستان میں ڈومیسائل بنوائیں",
+      "summary": "پہلی بار ڈومیسائل بنوانے کے لیے۔ اپنے ضلع کی تفصیلات کی تصدیق کریں۔",
+      "items": [
+        "متعلقہ ادارے سے مطلوبہ سرٹیفکیٹ معلوم کریں، کیونکہ لوکل اور ڈومیسائل الگ سروسز ہیں۔",
+        "اپنے ضلع کے موجودہ فارم، شناختی اور رہائشی دستاویزات کی فہرست معلوم کریں۔"
+      ],
+      "steps": [
+        "اپنے ضلع کے ڈپٹی کمشنر کے دفتر سے شروع کریں۔",
+        "اپنے ضلع اور سرٹیفکیٹ کے لیے درخواست کا دستیاب طریقہ معلوم کریں۔"
+      ],
+      "feeText": "متعلقہ دفتر سے تازہ فیس اور ادائیگی کا طریقہ معلوم کریں۔"
+    }
+  },
+  "domicileIslamabad": {
+    "links": [
+      [
+        "Islamabad Citizen Facilitation Centre",
+        "اسلام آباد شہری سہولت مرکز",
+        "https://cfc-ict.gov.pk/domicile/info"
+      ]
+    ],
+    "en": {
+      "title": "Apply for a domicile in Islamabad",
+      "summary": "For a first domicile certificate. Confirm the details for your district.",
+      "items": [
+        "Check the official eligibility rules for the Islamabad address on the CNIC.",
+        "Prepare the CNIC copy, proof of residence, a utility bill copy and the prescribed affidavit.",
+        "Check if an NOC or district verification applies to the addresses on your CNIC."
+      ],
+      "steps": [
+        "Visit the Citizen Facilitation Centre, take a token, and follow its Form P and submission instructions."
+      ],
+      "feeText": "Confirm the current charge with the official centre before paying."
+    },
+    "ur": {
+      "title": "اسلام آباد میں ڈومیسائل بنوائیں",
+      "summary": "پہلی بار ڈومیسائل بنوانے کے لیے۔ اپنے ضلع کی تفصیلات کی تصدیق کریں۔",
+      "items": [
+        "شناختی کارڈ پر اسلام آباد کے پتے سے متعلق سرکاری اہلیت دیکھیں۔",
+        "شناختی کارڈ کی کاپی، رہائش کا ثبوت، یوٹیلٹی بل کی کاپی اور مقررہ حلف نامہ تیار کریں۔",
+        "دیکھیں کہ شناختی کارڈ کے پتوں کے مطابق این او سی یا ضلعی تصدیق درکار ہے یا نہیں۔"
+      ],
+      "steps": [
+        "شہری سہولت مرکز جائیں، ٹوکن لیں اور فارم پی اور دستاویزات جمع کرنے کی ہدایات پر عمل کریں۔"
+      ],
+      "feeText": "ادائیگی سے پہلے سرکاری مرکز سے تازہ فیس معلوم کریں۔"
+    }
+  },
+  "domicileAJK": {
+    "links": [
+      [
+        "AJK e-Facilitation Centre",
+        "آزاد کشمیر ای سہولت مرکز",
+        "https://efc.ajk.gov.pk/download"
+      ]
+    ],
+    "en": {
+      "title": "Apply for a domicile in Azad Jammu and Kashmir",
+      "summary": "For a first domicile certificate. Confirm the details for your district.",
+      "items": [
+        "Download the current Domicile form and checklist from the e-Facilitation Centre.",
+        "Confirm whether your purpose requires a Domicile or a State Subject Certificate."
+      ],
+      "steps": [
+        "Contact the e-Facilitation Centre or the relevant Assistant Commissioner office for your district.",
+        "Follow the office’s application, verification and collection instructions."
+      ],
+      "feeText": "Ask the centre to confirm the current processing and service charges."
+    },
+    "ur": {
+      "title": "آزاد جموں و کشمیر میں ڈومیسائل بنوائیں",
+      "summary": "پہلی بار ڈومیسائل بنوانے کے لیے۔ اپنے ضلع کی تفصیلات کی تصدیق کریں۔",
+      "items": [
+        "ای سہولت مرکز سے ڈومیسائل کا تازہ فارم اور دستاویزات کی فہرست ڈاؤن لوڈ کریں۔",
+        "معلوم کریں کہ آپ کے مقصد کے لیے ڈومیسائل چاہیے یا اسٹیٹ سبجیکٹ سرٹیفکیٹ۔"
+      ],
+      "steps": [
+        "اپنے ضلع کے ای سہولت مرکز یا متعلقہ اسسٹنٹ کمشنر کے دفتر سے رابطہ کریں۔",
+        "درخواست، تصدیق اور وصولی کے لیے دفتر کی ہدایات پر عمل کریں۔"
+      ],
+      "feeText": "مرکز سے موجودہ پراسیسنگ اور سروس فیس کی تصدیق کریں۔"
+    }
+  },
+  "domicileGB": {
+    "links": [
+      [
+        "Government of Gilgit-Baltistan contact",
+        "حکومت گلگت بلتستان سے رابطہ",
+        "https://gilgitbaltistan.gov.pk/pages/contact"
+      ]
+    ],
+    "en": {
+      "title": "Apply for a domicile in Gilgit-Baltistan",
+      "summary": "For a first domicile certificate. Confirm the details for your district.",
+      "items": [
+        "Ask the relevant district administration for its current domicile form and supporting documents.",
+        "Confirm which proof of identity and residence your district accepts."
+      ],
+      "steps": [
+        "Use the government contact page if you need help finding your district’s issuing office.",
+        "Follow the district office’s submission, verification and collection instructions."
+      ],
+      "feeText": "Confirm fees with the district office before submitting or paying."
+    },
+    "ur": {
+      "title": "گلگت بلتستان میں ڈومیسائل بنوائیں",
+      "summary": "پہلی بار ڈومیسائل بنوانے کے لیے۔ اپنے ضلع کی تفصیلات کی تصدیق کریں۔",
+      "items": [
+        "متعلقہ ضلعی انتظامیہ سے ڈومیسائل کا تازہ فارم اور مطلوبہ دستاویزات معلوم کریں۔",
+        "اپنے ضلع سے قابل قبول شناختی اور رہائشی ثبوت معلوم کریں۔"
+      ],
+      "steps": [
+        "اپنے ضلع کا متعلقہ دفتر معلوم کرنے کے لیے سرکاری رابطہ صفحہ استعمال کریں۔",
+        "درخواست، تصدیق اور وصولی کے لیے ضلعی دفتر کی ہدایات پر عمل کریں۔"
+      ],
+      "feeText": "درخواست یا ادائیگی سے پہلے ضلعی دفتر سے فیس کی تصدیق کریں۔"
+    }
+  }
+};
+
+const domicileAreaNames = {
+  "domicile": [
+    "Multan",
+    "ملتان"
+  ],
+  "domicilePunjab": [
+    "Punjab",
+    "پنجاب"
+  ],
+  "domicileSindh": [
+    "Sindh",
+    "سندھ"
+  ],
+  "domicileKP": [
+    "Khyber Pakhtunkhwa",
+    "خیبر پختونخوا"
+  ],
+  "domicileBalochistan": [
+    "Balochistan",
+    "بلوچستان"
+  ],
+  "domicileIslamabad": [
+    "Islamabad",
+    "اسلام آباد"
+  ],
+  "domicileAJK": [
+    "Azad Jammu and Kashmir",
+    "آزاد جموں و کشمیر"
+  ],
+  "domicileGB": [
+    "Gilgit-Baltistan",
+    "گلگت بلتستان"
+  ]
+};
+
+const domicileAreas = {
+  domicile: /\bmultan\b|ملتان/u,
+  domicilePunjab: /\b(punjab|lahore|rawalpindi|faisalabad|bahawalpur|sialkot|sargodha|gujranwala|khanewal|lodhran|vehari|muzaffargarh)\b|پنجاب|لاہور|راولپنڈی|فیصل آباد|بہاولپور|سیالکوٹ|سرگودھا|گوجرانوالہ|خانیوال|لودھراں|وہاڑی|مظفر گڑھ/u,
+  domicileSindh: /\b(sindh|karachi|hyderabad|sukkur|larkana|mirpur\s*khas|thatta|badin|nawabshah)\b|سندھ|کراچی|حیدر آباد|حیدرآباد|سکھر|لاڑکانہ|میرپور خاص|ٹھٹھہ|بدین|نواب شاہ/u,
+  domicileKP: /\b(kp|kpk|khyber[ -]+pakhtunkhwa|peshawar|mardan|swat|abbottabad|kohat|charsadda|mansehra|bannu)\b|خیبر پختونخوا|پشاور|مردان|سوات|ایبٹ آباد|کوہاٹ|چارسدہ|مانسہرہ|بنوں/u,
+  domicileBalochistan: /\b(balochistan|baluchistan|quetta|gwadar|turbat|khuzdar|zhob|chaman|pishin|sibi)\b|بلوچستان|کوئٹہ|گوادر|تربت|خضدار|ژوب|چمن|پشین|سبی/u,
+  domicileIslamabad: /\b(islamabad|ict)\b|اسلام آباد|اسلامآباد/u,
+  domicileAJK: /\b(ajk|azad(?:\s+jammu\s+and)?\s+kashmir|muzaffarabad|mirpur(?!\s*khas)|kotli|rawalakot|bagh)\b|آزاد.*کشمیر|مظفر آباد|مظفرآباد|میرپور(?! خاص)|کوٹلی|راولاکوٹ/u,
+  domicileGB: /\b(gilgit(?:[ -]baltistan)?|gb|skardu|hunza|astore|diamer|ghizer|shigar|ghanche|nagar)\b|گلگت|بلتستان|سکردو|اسکردو|ہنزہ|استور|دیامر|غذر|شگر|نگر/u,
+};
+
+function domicileRoute(value) {
+  const areas = Object.keys(domicileAreas).filter((key) => domicileAreas[key].test(value));
+  if (areas.includes("domicile") && areas.includes("domicilePunjab")) {
+    areas.splice(areas.indexOf("domicilePunjab"), 1);
+  }
+  return areas.length === 1 ? areas[0] : "domicileLocation";
+}
+
+const firstPassport = {
+  ...additionalGuides.passport,
+  en: {
+    ...additionalGuides.passport.en,
+    title: "Apply for your first passport",
+    summary: "For applicants aged 18 or older applying for their first ordinary passport in Pakistan. The fee selector covers 36-page e-passports.",
+    items: additionalGuides.passport.en.items.filter((_, index) => index !== 1),
+    steps: [
+      "Visit a Regional Passport Office in person and ask the Customer Service Counter for a first-time passport application.",
+      ...additionalGuides.passport.en.steps.slice(1),
+    ],
+  },
+  ur: {
+    ...additionalGuides.passport.ur,
+    title: "پہلا پاسپورٹ بنوائیں",
+    summary: "پاکستان میں ۱۸ سال یا اس سے زیادہ عمر کے پہلی بار عام پاسپورٹ بنوانے والے درخواست گزاروں کے لیے۔ نیچے ۳۶ صفحات والے ای پاسپورٹ کی فیس ہے۔",
+    items: additionalGuides.passport.ur.items.filter((_, index) => index !== 1),
+    steps: [
+      "ریجنل پاسپورٹ آفس خود جائیں اور کسٹمر سروس کاؤنٹر پر پہلی بار پاسپورٹ کی درخواست کا بتائیں۔",
+      ...additionalGuides.passport.ur.steps.slice(1),
+    ],
+  },
+};
+
 const guides = {
   ...additionalGuides,
+  ...regionalDomicileGuides,
+  passportFirst: firstPassport,
   ...nadraGuides,
   first: {
     normalFee: "0",
@@ -668,8 +997,9 @@ const labels = {
     empty: ["Your checklist will appear here", "Ask a question or choose a service to see what to prepare and where to apply."],
     clarify: ["Which CNIC service do you need?", "Pehli dafa banwana hai, renew karwana hai, duplicate chahiye, ya details update karni hain?"],
     pick: ["Which service should we start with?", "Choose one service to get its checklist."],
-    domicileLocation: ["Is your domicile for Multan district?", "Choose Multan for the local checklist. For a different district, confirm its requirements with your district office."],
-    outside: ["Check the guide for your location", "The domicile checklist covers Multan district. The business checklist covers sole proprietors in Punjab."],
+    domicileLocation: ["Where do you need a domicile?", "Select your province or territory. Multan has its own district checklist."],
+    passportChoice: ["Which passport service do you need?", "Choose a first passport or renewal."],
+    outside: ["Check the guide for your location", "The business registration checklist covers sole proprietors in Punjab."],
     unsupported: ["We couldn’t match that question", "Try mentioning a service, such as CNIC renewal or B-Form, or select a checklist below."],
     inputErrors: {
       empty: "Type a question, for example: Mujhe B-Form banwana hai.",
@@ -677,7 +1007,7 @@ const labels = {
       tooLong: "Keep your question to 200 characters or fewer.",
       privateId: "Remove ID numbers, phone numbers or email addresses before asking.",
     },
-    options: { first: "First CNIC", renew: "CNIC renewal", duplicate: "Lost or damaged CNIC", modify: "Update CNIC", domicile: "Domicile · Multan", passport: "Passport renewal", business: "Small business · Punjab" },
+    options: { first: "First CNIC", renew: "CNIC renewal", duplicate: "Lost or damaged CNIC", modify: "Update CNIC", domicileLocation: "Domicile", passportFirst: "First passport", passport: "Passport renewal", business: "Small business" },
     cardLabel: "CNIC type", cardOptions: ["Standard CNIC", "Smart NIC"],
     passportLabel: "36-page e-passport validity", passportOptions: ["5 years", "10 years"],
     noSpeech: "Reading aloud is unavailable for this language on this device.",
@@ -697,8 +1027,9 @@ const labels = {
     empty: ["آپ کی چیک لسٹ یہاں آئے گی", "سوال پوچھیں یا کوئی سروس منتخب کریں۔"],
     clarify: ["آپ کو شناختی کارڈ کی کون سی سروس چاہیے؟", "پہلی بار بنوانا ہے، تجدید کرانی ہے، دوبارہ اجرا چاہیے یا معلومات بدلنی ہیں؟"],
     pick: ["آپ کو کون سی سروس چاہیے؟", "چیک لسٹ کے لیے ایک سروس منتخب کریں۔"],
-    domicileLocation: ["کیا آپ کو ضلع ملتان کا ڈومیسائل چاہیے؟", "ملتان کے لیے نیچے منتخب کریں۔ کسی اور ضلع کے لیے اپنے ضلعی دفتر سے شرائط معلوم کریں۔"],
-    outside: ["اپنے علاقے کی ہدایات دیکھیں", "ڈومیسائل کی چیک لسٹ ضلع ملتان اور کاروبار کی چیک لسٹ پنجاب میں ایک مالک والے کاروبار کے لیے ہے۔"],
+    domicileLocation: ["آپ کو کس علاقے کا ڈومیسائل چاہیے؟", "اپنا صوبہ یا علاقہ منتخب کریں۔ ضلع ملتان کے لیے الگ فہرست موجود ہے۔"],
+    passportChoice: ["آپ کو پاسپورٹ کی کون سی سروس چاہیے؟", "پہلا پاسپورٹ یا پاسپورٹ کی تجدید منتخب کریں۔"],
+    outside: ["اپنے علاقے کی رہنمائی دیکھیں", "کاروباری رجسٹریشن کی یہ رہنمائی پنجاب میں انفرادی کاروبار کے لیے ہے۔"],
     unsupported: ["سوال سے کوئی سروس نہیں ملی", "سوال میں سروس کا نام لکھیں، مثلاً شناختی کارڈ کی تجدید یا ب فارم، یا نیچے سے چیک لسٹ منتخب کریں۔"],
     inputErrors: {
       empty: "کوئی سوال لکھیں، مثلاً مجھے ب فارم بنوانا ہے۔",
@@ -706,7 +1037,7 @@ const labels = {
       tooLong: "سوال ۲۰۰ حروف سے زیادہ نہ ہو۔",
       privateId: "سوال سے شناختی نمبر، فون نمبر یا ای میل ہٹا دیں۔",
     },
-    options: { first: "پہلا شناختی کارڈ", renew: "شناختی کارڈ کی تجدید", duplicate: "شناختی کارڈ کا دوبارہ اجرا", modify: "شناختی کارڈ کی ترمیم", domicile: "ڈومیسائل · ملتان", passport: "پاسپورٹ کی تجدید", business: "چھوٹا کاروبار · پنجاب" },
+    options: { first: "پہلا شناختی کارڈ", renew: "شناختی کارڈ کی تجدید", duplicate: "شناختی کارڈ کا دوبارہ اجرا", modify: "شناختی کارڈ کی ترمیم", domicileLocation: "ڈومیسائل", passportFirst: "پہلا پاسپورٹ", passport: "پاسپورٹ کی تجدید", business: "چھوٹا کاروبار" },
     cardLabel: "شناختی کارڈ کی قسم", cardOptions: ["عام شناختی کارڈ", "اسمارٹ شناختی کارڈ"],
     passportLabel: "۳۶ صفحات والے ای پاسپورٹ کی مدت", passportOptions: ["۵ سال", "۱۰ سال"],
     noSpeech: "چیک لسٹ کی آواز نہیں چل سکی۔ دوبارہ کوشش کریں۔",
@@ -736,11 +1067,11 @@ let language = "en";
 let inputError;
 const maxQuestionLength = 200;
 const privateText = /\p{Nd}(?:[\s-]*\p{Nd}){8}|\b[A-Z]{2}\s?\d{7}\b|[^\s@]+@[^\s@]+\.[^\s@]+/iu;
-const otherRoutes = new Set(["clarify", "pick", "domicileLocation", "outside", "unsupported"]);
+const otherRoutes = new Set(["clarify", "pick", "domicileLocation", "passportChoice", "outside", "unsupported"]);
 let activeMatch;
 let matchState;
 const checkedItems = Object.fromEntries(Object.keys(guides).map((key) => [key, new Set()]));
-const feeSelection = { first: 0, renew: 0, duplicate: 0, modify: 0, passport: 0 };
+const feeSelection = { first: 0, renew: 0, duplicate: 0, modify: 0, passport: 0, passportFirst: 0 };
 const emptyIcon = document.querySelector(".empty-icon").outerHTML;
 
 function classify(text) {
@@ -761,12 +1092,10 @@ function classify(text) {
   const cancel = /\b(cancel\w*|mansookh\w*)\b|منسوخ|منسوخی/u.test(value);
   const death = /\b(death|died|deceased|wafaat|wafat|inteqal|intiqal)\b|وفات|انتقال|مرحوم/u.test(value);
   const outsidePunjab = /\b(sindh|karachi|hyderabad|balochistan|quetta|kpk|peshawar|islamabad|ajk|kashmir|gilgit)\b|سندھ|کراچی|بلوچستان|کوئٹہ|پشاور|اسلام آباد|کشمیر|گلگت/u.test(value);
-  const otherDistrict = /\b(lahore|rawalpindi|faisalabad|bahawalpur|sialkot|khanewal|lodhran|vehari|muzaffargarh|dg khan|gujranwala|sargodha)\b|لاہور|راولپنڈی|فیصل آباد|بہاولپور|سیالکوٹ|خانیوال|وہاڑی|مظفر گڑھ/u.test(value);
   if ([passport, domicile, business].filter(Boolean).length > 1) return "pick";
   if (domicile) {
-    if (duplicate || modify || cancel) return "unsupported";
-    if (outsidePunjab || otherDistrict) return "outside";
-    return /\bmultan\b|ملتان/u.test(value) ? "domicile" : "domicileLocation";
+    if (duplicate || modify || cancel || renew) return "unsupported";
+    return domicileRoute(value);
   }
   if (business) {
     if (cancel || /\b(?:business ideas?|business plan|marketing|profit)\b|کاروباری آئیڈیاز/u.test(value)) return "unsupported";
@@ -776,7 +1105,7 @@ function classify(text) {
   }
   if (passport && !(crc && !renew && !duplicate && !modify)) {
     if (duplicate || modify || cancel || /\b(minor|child|kid|overseas|abroad)\b|بچے|بیرون ملک/u.test(value)) return "unsupported";
-    return first && !renew ? "unsupported" : "passport";
+    return renew ? "passport" : first ? "passportFirst" : "passportChoice";
   }
   if (cancel && (identity || crc || nicop || poc || death || /cancellation certificate|منسوخی کا سرٹیفکیٹ/u.test(value))) return "cancellation";
   if ([crc, frc, nicop, poc].filter(Boolean).length > 1) return "pick";
@@ -796,7 +1125,7 @@ function classify(text) {
 
 function renderFees(guide, copy, content) {
   if (content.feeText) return '<p class="fee-note">' + content.feeText + '</p>';
-  const isPassport = service === "passport";
+  const isPassport = service === "passport" || service === "passportFirst";
   const options = isPassport ? copy.passportOptions : copy.cardOptions;
   const label = isPassport ? copy.passportLabel : copy.cardLabel;
   const selected = feeSelection[service];
@@ -829,11 +1158,13 @@ function render() {
   if (!guide) {
     const [title, description] = copy[service];
     const choices = {
-      empty: [], clarify: ["first", "renew", "duplicate", "modify"], domicileLocation: ["domicile"],
+      empty: [], clarify: ["first", "renew", "duplicate", "modify"], domicileLocation: Object.keys(domicileAreas),
+      passportChoice: ["passportFirst", "passport"],
       outside: [], pick: Object.keys(copy.options), unsupported: Object.keys(copy.options),
     }[service];
     const buttons = choices.map((key) =>
-      '<button type="button" data-service="' + key + '">' + copy.options[key] + '</button>'
+      '<button type="button" data-service="' + key + '">' +
+      (domicileAreaNames[key]?.[language === "ur" ? 1 : 0] ?? copy.options[key]) + '</button>'
     ).join("");
     result.innerHTML = '<div class="empty" ' + attributes + '>' + emptyIcon +
       '<h2 id="output-heading" tabindex="-1">' + title + '</h2><p>' + description + '</p>' +
@@ -853,6 +1184,7 @@ function render() {
     <div class="guide" ${attributes}>
       <h2 id="output-heading" tabindex="-1">${content.title}</h2>
       <p>${content.summary}</p>
+      ${Object.hasOwn(domicileAreas, service) ? '<div class="choices"><button type="button" data-service="domicileLocation">' + (language === "ur" ? "علاقہ بدلیں" : "Change location") + '</button></div>' : ''}
       <button type="button" class="read-aloud" id="read-guide">${copy.listen}</button>
       <span id="read-status" class="read-status" role="status"></span>
       <audio id="read-audio" controls hidden aria-label="${copy.listen}"></audio>
@@ -864,7 +1196,7 @@ function render() {
       <h3>${copy.fees}</h3>
       <div id="fee-details">${renderFees(guide, copy, content)}</div>
       ${content.feeNote ? '<p>' + content.feeNote + '</p>' : ''}
-      ${service !== "business" ? '<p>' + copy.date + '</p>' : ''}
+      ${service !== "business" && !Object.hasOwn(regionalDomicileGuides, service) ? '<p>' + copy.date + '</p>' : ''}
       <div class="links">${links.map(([label, url]) =>
         '<a href="' + url + '" target="_blank" rel="noopener">' + label + '</a>'
       ).join("")}</div>
@@ -930,6 +1262,12 @@ form.addEventListener("submit", async (event) => {
     return;
   }
   const fallback = classify(text);
+  if (fallback === "domicileLocation" || Object.hasOwn(domicileAreas, fallback) ||
+      fallback === "passportFirst" || fallback === "passportChoice") {
+    setMatchStatus("local");
+    show(fallback);
+    return;
+  }
   const controller = new AbortController();
   activeMatch = controller;
   setMatchStatus("waiting");
@@ -958,7 +1296,9 @@ form.addEventListener("submit", async (event) => {
   if (activeMatch !== controller) return;
   activeMatch = undefined;
   setMatchStatus(source);
-  show(route);
+  show(route === "domicile" || route === "domicileLocation"
+    ? domicileRoute(text.toLowerCase())
+    : route);
 });
 
 document.addEventListener("click", (event) => {
