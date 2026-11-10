@@ -107,6 +107,8 @@ textarea::placeholder { color: #526b5b; }
 .read-aloud:hover { background: var(--soft); }
 .read-status { display: block; font-size: 12px; color: var(--muted); }
 .read-status:empty { display: none; }
+.guide audio { display: block; width: min(100%, 340px); margin: 8px 0; }
+.guide audio[hidden] { display: none; }
 .question-error { color: #9a3028; font-size: .88rem; font-weight: 650; margin: 7px 0; }
 .question-error:empty { display: none; }
 .field:has(#question[aria-invalid="true"]) { border-color: #b34f46; }
@@ -171,12 +173,12 @@ textarea::placeholder { color: #526b5b; }
         <label for="question">Type or speak your question</label>
         <div class="field">
           <textarea id="question" rows="2" dir="auto" enterkeyhint="go" aria-describedby="question-error voice-status" placeholder="Mujhe naya CNIC banwana hai…"></textarea>
-          <button id="mic" type="button" class="mic" aria-label="Speak in Urdu" aria-pressed="false" title="Speak in Urdu">
+          <button id="mic" type="button" class="mic" aria-label="Record your question" aria-pressed="false" title="Record your question">
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11v1a7 7 0 0 0 14 0v-1M12 19v3m-3 0h6"/></svg>
           </button>
         </div>
         <p class="question-error" id="question-error" role="alert" dir="auto"></p>
-        <p class="hint" id="voice-status" role="status">Urdu voice uses your browser’s speech service. Questions are sent to Google Gemini. Leave out ID numbers and personal details.</p>
+        <p class="hint" id="voice-status" role="status">Tap the mic to record. Your recording and submitted questions are processed by Google Gemini. Leave out ID numbers and personal details.</p>
         <button class="primary" type="submit" disabled>Get my checklist <span aria-hidden="true">→</span></button>
         <p class="hint" id="match-status" role="status" dir="auto"></p>
         <p class="hint" id="script-help">Enable JavaScript to use the checklist finder.</p>
@@ -678,7 +680,9 @@ const labels = {
     options: { first: "First CNIC", renew: "CNIC renewal", duplicate: "Lost or damaged CNIC", modify: "Update CNIC", domicile: "Domicile · Multan", passport: "Passport renewal", business: "Small business · Punjab" },
     cardLabel: "CNIC type", cardOptions: ["Standard CNIC", "Smart NIC"],
     passportLabel: "36-page e-passport validity", passportOptions: ["5 years", "10 years"],
-    noSpeech: "Reading aloud is unavailable for this language on this device.",
+    noSpeech: "Couldn’t read the checklist aloud. Tap again to retry.",
+    preparingAudio: "Preparing the audio…",
+    playAudio: "Tap play to hear the checklist.",
     match: {
       waiting: "Finding your checklist with Gemini…",
       ai: "Matched with Gemini.",
@@ -705,7 +709,9 @@ const labels = {
     options: { first: "پہلا شناختی کارڈ", renew: "شناختی کارڈ کی تجدید", duplicate: "شناختی کارڈ کا دوبارہ اجرا", modify: "شناختی کارڈ کی ترمیم", domicile: "ڈومیسائل · ملتان", passport: "پاسپورٹ کی تجدید", business: "چھوٹا کاروبار · پنجاب" },
     cardLabel: "شناختی کارڈ کی قسم", cardOptions: ["عام شناختی کارڈ", "اسمارٹ شناختی کارڈ"],
     passportLabel: "۳۶ صفحات والے ای پاسپورٹ کی مدت", passportOptions: ["۵ سال", "۱۰ سال"],
-    noSpeech: "اس ڈیوائس پر اس زبان میں چیک لسٹ سننے کی سہولت دستیاب نہیں۔",
+    noSpeech: "چیک لسٹ کی آواز نہیں چل سکی۔ دوبارہ کوشش کریں۔",
+    preparingAudio: "آواز تیار ہو رہی ہے…",
+    playAudio: "چیک لسٹ سننے کے لیے پلے دبائیں۔",
     match: {
       waiting: "Gemini کی مدد سے چیک لسٹ تلاش ہو رہی ہے…",
       ai: "چیک لسٹ Gemini کی مدد سے منتخب کی گئی۔",
@@ -723,6 +729,10 @@ const questionError = document.querySelector("#question-error");
 const matchStatus = document.querySelector("#match-status");
 const defaultVoiceStatus = voiceStatus.textContent;
 let service = "empty";
+let readController;
+let readUtterance;
+let readAudioUrl;
+let readStartTimer;
 let language = "en";
 let inputError;
 const maxQuestionLength = 200;
@@ -808,6 +818,7 @@ function renderFees(guide, copy, content) {
 }
 
 function render() {
+  stopReading();
   const copy = labels[language];
   const guide = guides[service];
   const direction = language === "ur" ? "rtl" : "ltr";
@@ -845,6 +856,7 @@ function render() {
       <p>${content.summary}</p>
       <button type="button" class="read-aloud" id="read-guide">${copy.listen}</button>
       <span id="read-status" class="read-status" role="status"></span>
+      <audio id="read-audio" controls hidden aria-label="${copy.listen}"></audio>
       <h3>${copy.ready}</h3>
       <ul>${items}</ul>
       <h3>${copy.next}</h3>
@@ -861,7 +873,6 @@ function render() {
 }
 
 function show(nextService) {
-  window.speechSynthesis?.cancel();
   service = nextService;
   render();
   document.querySelector("#output-heading").focus();
@@ -912,7 +923,6 @@ form.addEventListener("submit", async (event) => {
   setInputError(error);
   if (error) {
     if (Object.hasOwn(guides, service)) {
-      window.speechSynthesis?.cancel();
       service = "empty";
       render();
     }
@@ -961,7 +971,6 @@ document.addEventListener("click", (event) => {
 
   const toggle = event.target.closest("[data-lang]");
   if (toggle) {
-    window.speechSynthesis?.cancel();
     language = toggle.dataset.lang;
     if (inputError) setInputError(inputError);
     setMatchStatus(matchState);
@@ -972,39 +981,121 @@ document.addEventListener("click", (event) => {
   }
 });
 
-result.addEventListener("click", (event) => {
-  if (event.target.id !== "read-guide") return;
-  const synthesis = window.speechSynthesis;
-  const voice = synthesis?.getVoices().find((candidate) => candidate.lang.toLowerCase().startsWith(language));
-  const status = document.querySelector("#read-status");
-  if (!voice) {
-    status.textContent = labels[language].noSpeech;
-    return;
+function stopReading() {
+  clearTimeout(readStartTimer);
+  readController?.abort();
+  readController = undefined;
+  if (readUtterance) {
+    readUtterance = undefined;
+    window.speechSynthesis.cancel();
   }
+  if (readAudioUrl) {
+    const player = document.querySelector("#read-audio");
+    player.pause();
+    player.removeAttribute("src");
+    player.hidden = true;
+    URL.revokeObjectURL(readAudioUrl);
+    readAudioUrl = undefined;
+  }
+}
 
+result.addEventListener("click", async (event) => {
+  const button = event.target.closest("#read-guide");
+  if (!button) return;
+  stopReading();
+  const copy = labels[language];
+  const readingLanguage = language;
+  const status = document.querySelector("#read-status");
+  const player = document.querySelector("#read-audio");
   const content = guides[service][language];
   const fees = [...document.querySelectorAll("#fee-details dd")].map((fee) =>
     fee.previousElementSibling.textContent + " " + fee.textContent
   );
-  const text = [
-    content.title, labels[language].ready, ...content.items,
-    labels[language].next, ...content.steps, content.note,
-    labels[language].fees, content.feeText, ...fees, content.feeNote,
-  ].filter(Boolean).join(". ");
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.voice = voice;
-  utterance.lang = voice.lang;
-  utterance.rate = 0.88;
-  synthesis.cancel();
+  const sections = [
+    content.title, copy.ready, ...content.items,
+    copy.next, ...content.steps, content.note,
+    copy.fees, content.feeText, ...fees, content.feeNote,
+  ].filter(Boolean);
   status.textContent = "";
-  utterance.onerror = (error) => {
-    if (!["canceled", "interrupted"].includes(error.error)) status.textContent = labels[language].noSpeech;
-  };
-  synthesis.speak(utterance);
+
+  async function playGeneratedAudio() {
+    const controller = new AbortController();
+    readController = controller;
+    const timeout = setTimeout(() => controller.abort(), 50000);
+    button.disabled = true;
+    status.textContent = copy.preparingAudio;
+    try {
+      const response = await fetch("/voice/read", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: sections.join("\n"), language: readingLanguage }),
+        signal: controller.signal,
+      });
+      if (!response.ok || !response.headers.get("content-type")?.startsWith("audio/")) throw new Error();
+      const blob = await response.blob();
+      if (readController !== controller) return;
+      readAudioUrl = URL.createObjectURL(blob);
+      player.src = readAudioUrl;
+      player.hidden = false;
+      status.textContent = copy.playAudio;
+      player.onplaying = () => { status.textContent = ""; };
+      player.onerror = () => { status.textContent = copy.noSpeech; };
+      player.play().catch(() => {});
+    } catch {
+      if (readController === controller) status.textContent = copy.noSpeech;
+    } finally {
+      clearTimeout(timeout);
+      if (readController === controller) {
+        readController = undefined;
+        button.disabled = false;
+      }
+    }
+  }
+
+  const synthesis = window.speechSynthesis;
+  const voice = synthesis?.getVoices().find((candidate) => candidate.lang.split("-")[0].toLowerCase() === readingLanguage);
+  if (!voice || !window.SpeechSynthesisUtterance) {
+    await playGeneratedAudio();
+    return;
+  }
+  function speakSection(index) {
+    const utterance = new SpeechSynthesisUtterance(sections[index]);
+    readUtterance = utterance;
+    utterance.voice = voice;
+    utterance.lang = voice.lang;
+    utterance.rate = 0.88;
+    utterance.onstart = () => {
+      if (readUtterance === utterance) clearTimeout(readStartTimer);
+    };
+    utterance.onend = () => {
+      if (readUtterance !== utterance) return;
+      clearTimeout(readStartTimer);
+      readUtterance = undefined;
+      if (index + 1 < sections.length) speakSection(index + 1);
+    };
+    const useAudioFallback = () => {
+      if (readUtterance !== utterance) return;
+      clearTimeout(readStartTimer);
+      readUtterance = undefined;
+      synthesis.cancel();
+      playGeneratedAudio();
+    };
+    utterance.onerror = useAudioFallback;
+    readStartTimer = setTimeout(useAudioFallback, 2500);
+    try {
+      synthesis.speak(utterance);
+    } catch {
+      useAudioFallback();
+    }
+  }
+  speakSection(0);
 });
 
 result.addEventListener("change", (event) => {
   if (event.target.id === "fee-option") {
+    stopReading();
+    document.querySelector("#read-guide").disabled = false;
+    document.querySelector("#read-status").textContent = "";
     feeSelection[service] = Number(event.target.value);
     const guide = guides[service];
     document.querySelector("#fee-details").innerHTML = renderFees(guide, labels[language], guide[language]);
@@ -1018,7 +1109,17 @@ result.addEventListener("change", (event) => {
 });
 
 let recognition;
-mic.addEventListener("click", () => {
+let recorder;
+
+function useTranscript(transcript) {
+  cancelMatch();
+  question.value = transcript;
+  setInputError();
+  voiceStatus.textContent = "Check the transcript, then select Get my checklist.";
+  question.focus();
+}
+
+function startBrowserRecognition() {
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
     voiceStatus.textContent = "Voice is unavailable in this browser. Type your question or use your phone keyboard’s mic.";
@@ -1034,11 +1135,7 @@ mic.addEventListener("click", () => {
   recognition = new SpeechRecognition();
   recognition.lang = "ur-PK";
   recognition.onresult = (event) => {
-    cancelMatch();
-    question.value = event.results[0][0].transcript;
-    setInputError();
-    voiceStatus.textContent = "Check the transcript, then select Get my checklist.";
-    question.focus();
+    useTranscript(event.results[0][0].transcript);
   };
   recognition.onerror = (event) => {
     if (event.error === "aborted") return;
@@ -1057,6 +1154,104 @@ mic.addEventListener("click", () => {
   } catch {
     recognition = undefined;
     voiceStatus.textContent = "Voice couldn’t start. You can still type your question.";
+  }
+}
+
+async function toWav(chunks) {
+  const AudioContext = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+  const audio = await new AudioContext(1, 1, 16000).decodeAudioData(await new Blob(chunks).arrayBuffer());
+  const samples = audio.getChannelData(0).subarray(0, 12 * 16000);
+  const bytes = samples.length * 2;
+  const wav = new ArrayBuffer(44 + bytes);
+  const header = new DataView(wav);
+  header.setUint32(0, 0x52494646); // RIFF
+  header.setUint32(4, 36 + bytes, true);
+  header.setUint32(8, 0x57415645); // WAVE
+  header.setUint32(12, 0x666d7420); // fmt
+  header.setUint32(16, 16, true);
+  header.setUint16(20, 1, true);
+  header.setUint16(22, 1, true);
+  header.setUint32(24, 16000, true);
+  header.setUint32(28, 32000, true);
+  header.setUint16(32, 2, true);
+  header.setUint16(34, 16, true);
+  header.setUint32(36, 0x64617461); // data
+  header.setUint32(40, bytes, true);
+  for (let i = 0; i < samples.length; i++) {
+    header.setInt16(44 + i * 2, Math.max(-1, Math.min(1, samples[i])) * 32767, true);
+  }
+  return wav;
+}
+
+mic.addEventListener("click", async () => {
+  if (recorder?.state === "recording") {
+    recorder.stop();
+    return;
+  }
+  if (!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder ||
+      !(window.OfflineAudioContext || window.webkitOfflineAudioContext)) {
+    startBrowserRecognition();
+    return;
+  }
+  mic.disabled = true;
+  voiceStatus.textContent = "Waiting for microphone permission…";
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const recording = new MediaRecorder(stream);
+    const chunks = [];
+    const originalQuestion = question.value;
+    recording.ondataavailable = (event) => {
+      if (event.data.size) chunks.push(event.data);
+    };
+    recording.start();
+    recorder = recording;
+    const timer = setTimeout(() => {
+      if (recording.state === "recording") recording.stop();
+    }, 12000);
+    let recordingFailed = false;
+    recording.onerror = () => { recordingFailed = true; };
+    recording.onstop = async () => {
+      clearTimeout(timer);
+      stream.getTracks().forEach((track) => track.stop());
+      recorder = undefined;
+      mic.setAttribute("aria-pressed", "false");
+      mic.setAttribute("aria-label", "Record your question");
+      mic.disabled = true;
+      voiceStatus.textContent = "Turning your recording into text…";
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 18000);
+      try {
+        if (recordingFailed || !chunks.length) throw new Error();
+        const response = await fetch("/voice/transcribe", {
+          method: "POST",
+          headers: { "Content-Type": "audio/wav" },
+          body: await toWav(chunks),
+          signal: controller.signal,
+        });
+        const data = await response.json();
+        if (response.ok && data.transcript && question.value === originalQuestion) useTranscript(data.transcript);
+        else if (response.ok) voiceStatus.textContent = defaultVoiceStatus;
+        else if (data.error === "no_speech") voiceStatus.textContent = "No clear speech heard. Try speaking again.";
+        else if (data.error === "question") voiceStatus.textContent = "Keep the question short and leave out personal details.";
+        else throw new Error();
+      } catch {
+        voiceStatus.textContent = "Couldn’t transcribe the recording. Try again or use your keyboard’s mic.";
+      } finally {
+        clearTimeout(timeout);
+        mic.disabled = false;
+      }
+    };
+    mic.setAttribute("aria-pressed", "true");
+    mic.setAttribute("aria-label", "Stop recording");
+    mic.disabled = false;
+    voiceStatus.textContent = "Recording for up to 12 seconds. Tap the mic again to finish.";
+  } catch (error) {
+    stream?.getTracks().forEach((track) => track.stop());
+    mic.disabled = false;
+    voiceStatus.textContent = error.name === "NotAllowedError"
+      ? "Microphone access is blocked. Allow it in your browser’s site settings, or use your keyboard’s mic."
+      : "Couldn’t start the microphone. Try your keyboard’s mic or type your question.";
   }
 });
 
