@@ -1026,10 +1026,17 @@ result.addEventListener("click", async (event) => {
     button.disabled = true;
     status.textContent = copy.preparingAudio;
     try {
-      const response = await fetch("/voice/read", {
+      const text = sections.join("\n");
+      let response;
+      if (readingLanguage === "ur" && window.crypto?.subtle) {
+        const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+        const id = Array.from(new Uint8Array(digest).slice(0, 8), (byte) => byte.toString(16).padStart(2, "0")).join("");
+        response = await fetch("/static/voice/ur-" + id + ".mp3", { signal: controller.signal });
+      }
+      if (!response?.ok) response = await fetch("/voice/read", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: sections.join("\n"), language: readingLanguage }),
+        body: JSON.stringify({ text, language: readingLanguage }),
         signal: controller.signal,
       });
       if (!response.ok || !response.headers.get("content-type")?.startsWith("audio/")) throw new Error();
@@ -1055,7 +1062,7 @@ result.addEventListener("click", async (event) => {
 
   const synthesis = window.speechSynthesis;
   const voice = synthesis?.getVoices().find((candidate) => candidate.lang.split("-")[0].toLowerCase() === readingLanguage);
-  if (!voice || !window.SpeechSynthesisUtterance) {
+  if (readingLanguage === "ur" || !voice || !window.SpeechSynthesisUtterance) {
     await playGeneratedAudio();
     return;
   }
