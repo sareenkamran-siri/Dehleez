@@ -722,7 +722,7 @@ function classify(text) {
   const value = text.toLowerCase().normalize("NFKC").replace(/[\u064b-\u065f\u0670]/gu, "");
   const first = /\b(first(?:[ -]time)?|fresh|nay[aei]|n[ae]w|pehl[aeiy]|p[ae]hli)\b|نیا|نئے|پہل[یےا]/u.test(value);
   const renew = /\b(renew(?:al|ed|ing)?|expir\w*|miyad|mayad)\b|تجدید|میعاد|ایکسپائر|رینیو/u.test(value);
-  const identity = /\b(cnic|nadra|id[ -]?card|shanakhti|shanakht)\b|شناختی|شناخت|نادرا|سی این آئی سی/u.test(value);
+  const identity = /\b(cnic|nadra|id[ -]?card|shanakhti|shanakht)\b|شناختی|شناخت|نادرا|سی\s*این\s*[اآ]ئ?ی\s*سی/u.test(value);
   const passport = /\b(passport|pasport)\b|پاسپورٹ|پاس پورٹ/u.test(value);
   const domicile = /\b(domicile|domisile)\b|ڈومیسائل|ڈومیسایل/u.test(value);
   const business = /\b(business|karobar|kaarobar|dukaan|dukan|sole propriet\w*|ntn)\b|کاروبار|دکان|این ٹی این/u.test(value);
@@ -730,7 +730,7 @@ function classify(text) {
   const modify = /\b(modif\w*|updat\w*|correct\w*|chang\w*|badal\w*|tabdeel\w*|durust\w*)\b|ترمیم|تبدیل|درست|بدل/u.test(value);
   const shortCnicReply = service === "clarify" && /^(?:(?:first(?:[ -]time)?|pehli dafa|renew|renewal|duplicate|reprint|update|modify)(?:\s+(?:chahiye|karna hai|karwana hai|banwana hai|please))?|پہلی بار|تجدید|دوبارہ اجرا|ترمیم)[.!؟?]*$/u.test(value);
   const crc = /\b(b[\s-]?form|crc|child registration certificate)\b|ب[یے]?\s*فارم|سی آر سی/u.test(value);
-  const frc = /\b(frc|family (registration )?certificate|family tree)\b|ایف آر سی|فیملی (رجسٹریشن|سرٹیفکیٹ)|خاندانی (سرٹیفکیٹ|ریکارڈ)/u.test(value);
+  const frc = /\b(frc|family (registration )?certificate|family tree)\b|ایف\s*[اآ]ر\s*سی|فیملی (رجسٹریشن|سرٹیفکیٹ)|خاندانی (سرٹیفکیٹ|ریکارڈ)/u.test(value);
   const nicop = /\b(nicop|snicop)\b|نائیکوپ|نائکوپ|نائیکاپ/u.test(value);
   const poc = /\b(poc|pakistan origin card)\b|پی او سی|پاکستان اوریجن کارڈ/u.test(value);
   const cancel = /\b(cancel\w*|mansookh\w*)\b|منسوخ|منسوخی/u.test(value);
