@@ -28,11 +28,12 @@ GUIDES = {
     "nicop": "new or renewal of Smart NICOP",
     "poc": "new or renewal of Pakistan Origin Card",
     "cancellation": "NADRA ID cancellation, including after death",
-    "domicile": "fresh domicile in Multan district",
-    "domicileLocation": "fresh domicile with district missing",
+    "domicileLocation": "first-time domicile anywhere in Pakistan, whether or not a district is specified",
     "passport": "ordinary adult passport renewal inside Pakistan",
+    "passportFirst": "first ordinary passport for an adult inside Pakistan",
+    "passportChoice": "passport mentioned but unclear whether first application or renewal",
     "business": "sole proprietor registration in Punjab",
-    "outside": "domicile in a district other than Multan or small business outside Punjab",
+    "outside": "small business outside Punjab",
     "clarify": "Pakistani CNIC is clear but the requested action is unclear",
     "pick": "the question explicitly requests multiple different guides",
     "unsupported": "unrelated or out of scope",
@@ -43,7 +44,7 @@ Choose one route. Never generate fees, documents, addresses or other details.
 If cnicFollowUp is true, a short reply such as 'duplicate chahiye' can refer to a CNIC.
 Do not assume a first CNIC merely because the person asks how to get a card.
 Match the requested action even if another document is mentioned as supporting paperwork.
-Use unsupported for new, lost, child or overseas passports, CRC modification or reprint,
+Use unsupported for lost, child or overseas passports, domicile replacement or changes, CRC modification or reprint,
 NICOP or POC modification or reprint, company incorporation and partnerships.
 Routes:
 """ + "\n".join(f"{route}: {description}" for route, description in GUIDES.items())
