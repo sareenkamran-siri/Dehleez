@@ -1,3 +1,4 @@
 Flask
 google-genai
 gunicorn
+espeakng-loader==0.2.4
