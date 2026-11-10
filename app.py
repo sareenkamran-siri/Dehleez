@@ -1,9 +1,12 @@
+import base64
+import io
 import json
 import os
 import re
 import unicodedata
+import wave
 
-from flask import Flask, jsonify, request, render_template
+from flask import Flask, jsonify, request, render_template, Response
 from google import genai
 from google.genai import types
 
@@ -46,6 +49,16 @@ SENSITIVE_TEXT = re.compile(
     re.IGNORECASE,
 )
 
+QUESTION_MODEL = "gemini-3.5-flash-lite"
+
+
+def gemini_client(api_key, timeout=12000):
+    return genai.Client(api_key=api_key, http_options=types.HttpOptions(
+        api_version="v1beta",
+        timeout=timeout,
+        retry_options=types.HttpRetryOptions(attempts=1),
+    ))
+
 
 @app.get("/")
 def home():
@@ -71,13 +84,9 @@ def ask():
 
     try:
         # Use Taha's Flask + Google Gen AI flow with a bounded response.
-        with genai.Client(api_key=api_key, http_options=types.HttpOptions(
-            api_version="v1beta",
-            timeout=12000,
-            retry_options=types.HttpRetryOptions(attempts=1),
-        )) as client:
+        with gemini_client(api_key) as client:
             reply = client.models.generate_content(
-                model="gemini-3.5-flash-lite",
+                model=QUESTION_MODEL,
                 contents=json.dumps(
                     {"question": question, "cnicFollowUp": body.get("cnicFollowUp") is True},
                     ensure_ascii=False,
@@ -118,3 +127,94 @@ def ask():
     if not isinstance(route, str) or route not in GUIDES:
         return jsonify(error="invalid_route"), 502
     return jsonify(route=route)
+
+
+@app.post("/voice/transcribe")
+def transcribe_voice():
+    if request.headers.get("Sec-Fetch-Site") == "cross-site":
+        return jsonify(error="origin"), 403
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return jsonify(error="unconfigured"), 503
+
+    request.max_content_length = 512 * 1024
+    if request.mimetype != "audio/wav":
+        return jsonify(error="audio_format"), 415
+    recording = request.get_data(cache=False)
+    try:
+        with wave.open(io.BytesIO(recording), "rb") as audio:
+            if (audio.getnchannels(), audio.getsampwidth(), audio.getframerate()) != (1, 2, 16000):
+                return jsonify(error="audio_format"), 415
+            if not 0 < audio.getnframes() <= 13 * 16000:
+                return jsonify(error="audio_length"), 400
+    except (EOFError, wave.Error):
+        return jsonify(error="audio_format"), 415
+
+    try:
+        with gemini_client(api_key) as client:
+            reply = client.models.generate_content(
+                model=QUESTION_MODEL,
+                contents=[
+                    "Transcribe the spoken question only. Write Urdu speech in Urdu script and English in English. "
+                    "Do not translate or answer. Omit personal details such as ID numbers. "
+                    "Return an empty transcript if there is no clear speech.",
+                    types.Part.from_bytes(data=recording, mime_type="audio/wav"),
+                ],
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema={"type": "OBJECT", "properties": {
+                        "transcript": {"type": "STRING"},
+                    }, "required": ["transcript"]},
+                    max_output_tokens=1024,
+                ),
+            )
+        transcript = unicodedata.normalize("NFKC", json.loads(reply.text or "{}")["transcript"]).strip()
+    except Exception as error:
+        app.logger.warning("Gemini transcription failed (%s, code=%s)", type(error).__name__, getattr(error, "code", None))
+        return jsonify(error="unavailable"), 502
+
+    if not any(character.isalpha() for character in transcript):
+        return jsonify(error="no_speech"), 422
+    if len(transcript) > 200 or SENSITIVE_TEXT.search(transcript):
+        return jsonify(error="question"), 422
+    return jsonify(transcript=transcript)
+
+
+@app.post("/voice/read")
+def read_guide():
+    if request.headers.get("Sec-Fetch-Site") == "cross-site":
+        return jsonify(error="origin"), 403
+    api_key = os.environ.get("GEMINI_API_KEY")
+    if not api_key:
+        return jsonify(error="unconfigured"), 503
+
+    request.max_content_length = 8192
+    body = request.get_json(silent=True)
+    if not isinstance(body, dict):
+        return jsonify(error="question"), 400
+    text = body.get("text")
+    language = {"en": "English", "ur": "Pakistani Urdu"}.get(str(body.get("language")))
+    if not isinstance(text, str) or not 0 < len(text.strip()) <= 2200 or not language:
+        return jsonify(error="question"), 400
+
+    try:
+        with gemini_client(api_key, timeout=45000) as client:
+            interaction = client.interactions.create(
+                model="gemini-3.8-flash-lite-tts",
+                input=[{"type": "user_input", "content": [{
+                    "type": "text",
+                    "text": text,
+                    "annotations": [{"type": "speech_metadata", "style": f"Read clearly in {language}."}],
+                }]}],
+                response_format={"type": "audio"},
+                generation_config={"speech_config": [{"voice": "Kore"}]},
+                store=False,
+            )
+        wav = base64.b64decode(interaction.output_audio.data, validate=True)
+        if not wav.startswith(b"RIFF") or len(wav) > 4 * 1024 * 1024:
+            return jsonify(error="audio_length"), 502
+    except Exception as error:
+        app.logger.warning("Gemini read-aloud failed (%s, code=%s)", type(error).__name__, getattr(error, "code", None))
+        return jsonify(error="unavailable"), 502
+
+    return Response(wav, mimetype="audio/wav", headers={"Cache-Control": "no-store"})
