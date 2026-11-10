@@ -680,7 +680,7 @@ const labels = {
     options: { first: "First CNIC", renew: "CNIC renewal", duplicate: "Lost or damaged CNIC", modify: "Update CNIC", domicile: "Domicile · Multan", passport: "Passport renewal", business: "Small business · Punjab" },
     cardLabel: "CNIC type", cardOptions: ["Standard CNIC", "Smart NIC"],
     passportLabel: "36-page e-passport validity", passportOptions: ["5 years", "10 years"],
-    noSpeech: "Couldn’t read the checklist aloud. Tap again to retry.",
+    noSpeech: "Reading aloud is unavailable for this language on this device.",
     preparingAudio: "Preparing the audio…",
     playAudio: "Tap play to hear the checklist.",
     match: {
@@ -732,7 +732,6 @@ let service = "empty";
 let readController;
 let readUtterance;
 let readAudioUrl;
-let readStartTimer;
 let language = "en";
 let inputError;
 const maxQuestionLength = 200;
@@ -983,7 +982,6 @@ document.addEventListener("click", (event) => {
 });
 
 function stopReading() {
-  clearTimeout(readStartTimer);
   readController?.abort();
   readController = undefined;
   if (readUtterance) {
@@ -1060,43 +1058,36 @@ result.addEventListener("click", async (event) => {
     }
   }
 
-  const synthesis = window.speechSynthesis;
-  const voice = synthesis?.getVoices().find((candidate) => candidate.lang.split("-")[0].toLowerCase() === readingLanguage);
-  if (readingLanguage === "ur" || !voice || !window.SpeechSynthesisUtterance) {
+  if (readingLanguage === "ur") {
     await playGeneratedAudio();
     return;
   }
-  function speakSection(index) {
-    const utterance = new SpeechSynthesisUtterance(sections[index]);
-    readUtterance = utterance;
-    utterance.voice = voice;
-    utterance.lang = voice.lang;
-    utterance.rate = 0.88;
-    utterance.onstart = () => {
-      if (readUtterance === utterance) clearTimeout(readStartTimer);
-    };
-    utterance.onend = () => {
-      if (readUtterance !== utterance) return;
-      clearTimeout(readStartTimer);
-      readUtterance = undefined;
-      if (index + 1 < sections.length) speakSection(index + 1);
-    };
-    const useAudioFallback = () => {
-      if (readUtterance !== utterance) return;
-      clearTimeout(readStartTimer);
-      readUtterance = undefined;
-      synthesis.cancel();
-      playGeneratedAudio();
-    };
-    utterance.onerror = useAudioFallback;
-    readStartTimer = setTimeout(useAudioFallback, 2500);
-    try {
-      synthesis.speak(utterance);
-    } catch {
-      useAudioFallback();
-    }
+
+  const synthesis = window.speechSynthesis;
+  const voice = synthesis?.getVoices().find((candidate) => candidate.lang.toLowerCase().startsWith("en"));
+  if (!voice || !window.SpeechSynthesisUtterance) {
+    status.textContent = copy.noSpeech;
+    return;
   }
-  speakSection(0);
+  const utterance = new SpeechSynthesisUtterance(sections.join(". "));
+  readUtterance = utterance;
+  utterance.voice = voice;
+  utterance.lang = voice.lang;
+  utterance.rate = 0.88;
+  utterance.onend = () => {
+    if (readUtterance === utterance) readUtterance = undefined;
+  };
+  utterance.onerror = (event) => {
+    if (readUtterance !== utterance) return;
+    readUtterance = undefined;
+    if (!["canceled", "interrupted"].includes(event.error)) status.textContent = copy.noSpeech;
+  };
+  try {
+    synthesis.speak(utterance);
+  } catch {
+    readUtterance = undefined;
+    status.textContent = copy.noSpeech;
+  }
 });
 
 result.addEventListener("change", (event) => {
