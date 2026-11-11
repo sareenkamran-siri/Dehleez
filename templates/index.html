@@ -1406,7 +1406,7 @@ result.addEventListener("click", async (event) => {
   const synthesis = window.speechSynthesis;
   const voice = synthesis?.getVoices().find((candidate) => candidate.lang.toLowerCase().startsWith("en"));
   if (!voice || !window.SpeechSynthesisUtterance) {
-    status.textContent = copy.noSpeech;
+    await playGeneratedAudio();
     return;
   }
   const utterance = new SpeechSynthesisUtterance(sections.join(". "));
@@ -1420,13 +1420,13 @@ result.addEventListener("click", async (event) => {
   utterance.onerror = (event) => {
     if (readUtterance !== utterance) return;
     readUtterance = undefined;
-    if (!["canceled", "interrupted"].includes(event.error)) status.textContent = copy.noSpeech;
+    if (!["canceled", "interrupted"].includes(event.error)) void playGeneratedAudio();
   };
   try {
     synthesis.speak(utterance);
   } catch {
     readUtterance = undefined;
-    status.textContent = copy.noSpeech;
+    await playGeneratedAudio();
   }
 });
 
